@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 16</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 16</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Fim do Capítulo 16</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Tentar Novamente</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Qual era a nacionalidade de Agar, a serva de Sarai?", a: ["Cananeia", "Caldeia", "Egípcia", "Filisteia"], c: 2, r: "¹ ...e ele tinha uma serva egípcia, cujo nome era Agar." },
+            { q: "Qual foi a proposta de Sarai a Abrão diante da sua esterilidade?", a: ["Que adotassem Ló", "Que Abrão tomasse a sua serva Agar para ter filhos dela", "Que voltassem para Ur", "Que orassem mais um ano"], c: 1, r: "² ...toma, pois, a minha serva; porventura terei filhos dela." },
+            { q: "Quanto tempo Abrão habitava em Canaã quando Sarai lhe deu Agar por mulher?", a: ["5 anos", "10 anos", "15 anos", "20 anos"], c: 1, r: "³ ...ao fim de dez anos que Abrão habitara na terra de Canaã." },
+            { q: "Como Agar passou a ver Sarai depois que concebeu?", a: ["Com mais respeito", "Com medo", "Sua senhora foi desprezada aos seus olhos", "Com gratidão"], c: 2, r: "⁴ ...e vendo ela que concebera, foi sua senhora desprezada aos seus olhos." },
+            { q: "A quem Sarai culpou pelo desprezo que estava sofrendo de Agar?", a: ["A Deus", "A si mesma", "A Abrão", "Ao Anjo"], c: 2, r: "⁵ Então disse Sarai a Abrão: Meu agravo seja sobre ti..." },
+            { q: "Qual foi a resposta de Abrão à queixa de Sarai sobre Agar?", a: ["Defendeu Agar", "Disse que a serva estava nas mãos de Sarai para fazer o que quisesse", "Expulsou Agar imediatamente", "Ficou em silêncio"], c: 1, r: "⁶ E disse Abrão a Sarai: Eis que tua serva está na tua mão; faze-lhe o que bom é aos teus olhos." },
+            { q: "O que Agar fez após ser afligida por Sarai?", a: ["Pediu perdão", "Fugiu da face de Sarai", "Reclamou com Abrão", "Cometeu suicídio"], c: 1, r: "⁶ ...E afligiu-a Sarai, e ela fugiu de sua face." },
+            { q: "Onde o Anjo do Senhor encontrou Agar?", a: ["Em Hebrom", "Junto a uma fonte de água no deserto, no caminho de Sur", "No Egito", "Em Sodoma"], c: 1, r: "⁷ E o anjo do Senhor a achou junto a uma fonte de água no deserto, junto à fonte no caminho de Sur." },
+            { q: "Qual foi a ordem do Anjo do Senhor para Agar no deserto?", a: ["Que seguisse para o Egito", "Que voltasse para sua senhora e se humilhasse", "Que ficasse no deserto", "Que procurasse Abrão"], c: 1, r: "⁹ Então lhe disse o anjo do Senhor: Torna-te para tua senhora, e humilha-te debaixo de suas mãos." },
+            { q: "Qual seria a característica da descendência de Agar prometida pelo Anjo?", a: ["Seria pequena mas fiel", "Seria multiplicada sobremaneira e não poderia ser contada", "Seria governada por Sarai", "Seria extinta em pouco tempo"], c: 1, r: "¹⁰ ...Multiplicarei sobremaneira a tua descendência, que não será contada, por numerosa que será." },
+            { q: "Qual o significado do nome Ismael, conforme explicado pelo Anjo?", a: ["Deus é grande", "O Senhor ouviu a tua aflição", "Filho do deserto", "Dádiva de Deus"], c: 1, r: "¹¹ ...e chamarás o seu nome Ismael; porquanto o Senhor ouviu a tua aflição." },
+            { q: "Como o Anjo descreveu a personalidade de Ismael?", a: ["Homem de paz", "Homem sábio", "Homem feroz, com a mão contra todos e a de todos contra ele", "Grande agricultor"], c: 2, r: "¹² E ele será homem feroz, e a sua mão será contra todos, e a mão de todos contra ele..." },
+            { q: "Como Agar chamou o nome do Senhor que falava com ela?", a: ["Jeová Jireh", "Tu és Deus que me vê", "El Shaddai", "Santo de Israel"], c: 1, r: "¹³ E ela chamou o nome do Senhor, que com ela falava: Tu és Deus que me vê..." },
+            { q: "Qual o nome dado ao poço onde Agar teve a visão?", a: ["Beer-Seba", "Eseque", "Beer-Laai-Rói", "Sitna"], c: 2, r: "¹⁴ Por isso se chama aquele poço de Beer-Laai-Rói; eis que está entre Cades e Berede." },
+            { q: "Qual era a idade de Abrão quando Agar deu à luz Ismael?", a: ["75 anos", "86 anos", "99 anos", "100 anos"], c: 1, r: "¹⁶ E era Abrão da idade de oitenta e seis anos, quando Agar deu à luz Ismael." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Você acertou ${score} de ${quizData.length} perguntas!`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

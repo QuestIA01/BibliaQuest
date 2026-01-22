@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 17</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 17</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Fim do Capítulo 17</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Estudo</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Qual era a idade de Abrão quando o Senhor lhe apareceu e disse: 'Eu sou o Deus Todo-Poderoso'?", a: ["75 anos", "86 anos", "99 anos", "100 anos"], c: 2, r: "¹ Sendo, pois, Abrão da idade de noventa e nove anos..." },
+            { q: "O que Deus prometeu fazer após colocar Sua aliança entre Ele e Abrão?", a: ["Dar-lhe riquezas", "Multiplicá-lo grandissimamente", "Destruir seus inimigos", "Levá-lo de volta a Ur"], c: 1, r: "² E porei a minha aliança entre mim e ti, e te multiplicarei grandissimamente." },
+            { q: "Qual foi a reação de Abrão ao ouvir Deus falar no versículo 3?", a: ["Ele começou a cantar", "Ele caiu sobre o seu rosto", "Ele fugiu de medo", "Ele construiu um altar"], c: 1, r: "³ Então caiu Abrão sobre o seu rosto, e falou Deus com ele..." },
+            { q: "Segundo a aliança (v.4), de que Abrão seria pai?", a: ["De uma grande tribo", "De muitas nações", "Apenas de Ismael", "Dos reis do Egito"], c: 1, r: "⁴ Quanto a mim, eis a minha aliança contigo: serás o pai de muitas nações;" },
+            { q: "Qual o motivo da mudança de nome de Abrão para Abraão?", a: ["Porque ele envelheceu", "Porque por pai de muitas nações Deus o tinha posto", "Para esconder sua identidade", "Porque Sarai pediu"], c: 1, r: "⁵ ...Abraão será o teu nome; porque por pai de muitas nações te tenho posto;" },
+            { q: "O que Deus prometeu que sairia de Abraão no versículo 6?", a: ["Muitos rebanhos", "Nações e reis", "Grandes palácios", "Ouro e prata"], c: 1, r: "⁶ E te farei frutificar grandissimamente, e de ti farei nações, e reis sairão de ti;" },
+            { q: "Qual a duração da aliança estabelecida entre Deus, Abraão e sua descendência?", a: ["Por 400 anos", "Até o nascimento de Isaque", "Aliança perpétua", "Por dez gerações"], c: 2, r: "⁷ ...por aliança perpétua, para te ser a ti por Deus, e à tua descendência depois de ti." },
+            { q: "Qual terra Deus prometeu dar em perpétua possessão?", a: ["A terra do Egito", "Toda a terra de Canaã", "A terra de Ur", "O vale do Jordão"], c: 1, r: "⁸ ...toda a terra de Canaã em perpétua possessão e ser-lhes-ei o seu Deus." },
+            { q: "Quem, além de Abraão, deveria guardar a aliança de Deus?", a: ["Apenas os seus servos", "Sua descendência depois dele, nas suas gerações", "Apenas Ismael", "Ninguém mais"], c: 1, r: "⁹ ...Tu, porém, guardarás a minha aliança, tu, e a tua descendência depois de ti..." },
+            { q: "Qual era o sinal físico da aliança que deveria ser guardado?", a: ["Um sacrifício de cordeiro", "A circuncisão de todo homem", "O batismo nas águas", "Uma marca na testa"], c: 1, r: "¹⁰ Esta é a minha aliança... Que todo o homem entre vós será circuncidado." },
+            { q: "O que a circuncisão da carne representaria entre Deus e o povo?", a: ["Um castigo", "Um sinal da aliança", "Um costume egípcio", "Uma forma de cura"], c: 1, r: "¹¹ ...e isto será por sinal da aliança entre mim e vós." },
+            { q: "Com quantos dias de vida o menino deveria ser circuncidado?", a: ["No dia do nascimento", "Com sete dias", "Com oito dias", "Com trinta dias"], c: 2, r: "¹² O filho de oito dias, pois, será circuncidado..." },
+            { q: "Onde estaria a aliança perpétua de Deus, segundo o versículo 13?", a: ["Escrita em tábuas", "Na carne de Abraão e seus descendentes", "Nos portões da cidade", "Apenas no coração"], c: 1, r: "¹³ ...e estará a minha aliança na vossa carne por aliança perpétua." },
+            { q: "O que aconteceria com o homem que não fosse circuncidado?", a: ["Seria apenas repreendido", "Aquela alma seria extirpada do seu povo", "Deveria pagar uma multa", "Seria perdoado"], c: 1, r: "¹⁴ E o homem incircunciso... aquela alma será extirpada do seu povo; quebrou a minha aliança." },
+            { q: "Qual passou a ser o novo nome de Sarai por ordem de Deus?", a: ["Sura", "Sara", "Sereia", "Sarina"], c: 1, r: "¹⁵ ...A Sarai tua mulher não chamarás mais pelo nome de Sarai, mas Sara será o seu nome." },
+            { q: "O que Deus prometeu que sairia de Sara no versículo 16?", a: ["Apenas servas", "Mãe das nações e reis de povos", "Muita riqueza", "Uma nova religião"], c: 1, r: "¹⁶ ...e será mãe das nações; reis de povos sairão dela." },
+            { q: "Qual foi a reação interna de Abraão ao ouvir que seria pai aos 100 anos?", a: ["Ele chorou", "Ele riu-se e duvidou no coração", "Ele ficou bravo", "Ele saiu correndo"], c: 1, r: "¹⁷ Então caiu Abraão sobre o seu rosto, e riu-se... A um homem de cem anos há de nascer um filho?" },
+            { q: "Qual foi o desejo de Abraão em relação a Ismael no versículo 18?", a: ["Que ele fosse embora", "Quem dera que viva Ismael diante de teu rosto!", "Que ele fosse o rei do Egito", "Que ele não fosse circuncidado"], c: 1, r: "¹⁸ E disse Abraão a Deus: Quem dera que viva Ismael diante de teu rosto!" },
+            { q: "Qual seria o nome do filho que Sara daria a Abraão?", a: ["Ismael Segundo", "Isaque", "Jacó", "José"], c: 1, r: "¹⁹ ...Sara, tua mulher, te dará um filho, e chamarás o seu nome Isaque..." },
+            { q: "O que Deus prometeu especificamente para Ismael no versículo 20?", a: ["Que ele seria sacerdote", "Que geraria doze príncipes e seria uma grande nação", "Que ele moraria em Canaã", "Que ele não teria filhos"], c: 1, r: "²⁰ ...doze príncipes gerará, e dele farei uma grande nação." },
+            { q: "Com quem Deus estabeleceria Sua aliança principal e em que tempo?", a: ["Com Ismael imediatamente", "Com Isaque, no ano seguinte", "Com os filhos de Eliézer", "Com nenhum deles"], c: 1, r: "²¹ A minha aliança, porém, estabelecerei com Isaque, o qual Sara dará à luz... no ano seguinte." },
+            { q: "O que aconteceu quando Deus acabou de falar com Abraão?", a: ["Houve um trovão", "Subiu Deus de diante dele", "Começou a chover", "Abraão dormiu"], c: 1, r: "²² Ao acabar de falar com Abraão, subiu Deus de diante dele." },
+            { q: "Quando Abraão circuncidou os homens de sua casa após falar com Deus?", a: ["Uma semana depois", "Naquele mesmo dia", "No ano seguinte", "Quando Isaque nasceu"], c: 1, r: "²³ ...e circuncidou a carne do seu prepúcio, naquele mesmo dia, como Deus falara com ele." },
+            { q: "Quantos anos Abraão tinha quando foi circuncidado?", a: ["75 anos", "86 anos", "99 anos", "100 anos"], c: 2, r: "²⁴ E era Abraão da idade de noventa e nove anos, quando lhe foi circuncidada a carne..." },
+            { q: "Qual era a idade de Ismael quando foi circuncidado?", a: ["8 dias", "10 anos", "13 anos", "15 anos"], c: 2, r: "²⁵ E Ismael, seu filho, era da idade de treze anos, quando lhe foi circuncidada a carne..." },
+            { q: "Quem foi circuncidado no mesmo dia que Abraão?", a: ["Apenas os servos", "Ismael seu filho", "Ló", "Ninguém mais"], c: 1, r: "²⁶ Naquele mesmo dia foram circuncidados Abraão e Ismael seu filho," },
+            { q: "Quais homens da casa de Abraão foram circuncidados com ele?", a: ["Apenas os nascidos em casa", "Apenas os comprados", "Todos os homens da sua casa (nascidos e comprados)", "Ninguém além de Ismael"], c: 2, r: "²⁷ E todos os homens da sua casa... foram circuncidados com ele." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Concluído! Você acertou ${score} de ${quizData.length} versículos.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

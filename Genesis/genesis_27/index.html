@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 27</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 27</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 27 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 27</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Qual era a condição física de Isaque quando ele chamou Esaú no início do capítulo?", a: ["Estava doente de cama", "Estava velho e com os olhos escurecidos", "Estava forte mas cansado", "Estava surdo"], c: 1, r: "¹ E aconteceu que, como Isaque envelheceu, e os seus olhos se escureceram, de maneira que não podia ver..." },
+            { q: "O que Isaque pediu que Esaú fizesse antes de ser abençoado?", a: ["Que orasse ao Senhor", "Que buscasse Rebeca", "Que caçasse e fizesse um guisado saboroso", "Que lavasse seus pés"], c: 2, r: "³ ...sai ao campo, e apanha para mim alguma caça. ⁴ E faze-me um guisado saboroso... para que minha alma te abençoe..." },
+            { q: "Quem escutou a conversa entre Isaque e Esaú?", a: ["Jacó", "Os servos", "Rebeca", "Labão"], c: 2, r: "⁵ E Rebeca escutou quando Isaque falava ao seu filho Esaú." },
+            { q: "O que Rebeca ordenou que Jacó trouxesse do rebanho?", a: ["Um cordeiro novo", "Dois bons cabritos", "Um bezerro gordo", "Uma ovelha branca"], c: 1, r: "⁹ Vai agora ao rebanho, e traze-me de lá dois bons cabritos..." },
+            { q: "Qual era o medo de Jacó ao tentar enganar seu pai?", a: ["De ser morto por Esaú", "De que a comida ficasse ruim", "De ser descoberto como enganador e receber maldição", "De que Rebeca fosse castigada"], c: 2, r: "¹² Porventura me apalpará o meu pai, e serei aos seus olhos como enganador; assim trarei eu sobre mim maldição..." },
+            { q: "O que Rebeca fez para que Jacó parecesse 'cabeludo' como Esaú?", a: ["Colocou uma peruca", "Usou as peles dos cabritos nas mãos e no pescoço", "Colocou roupas de lã grossa", "Passou resina na pele"], c: 1, r: "¹⁶ E com as peles dos cabritos cobriu as suas mãos e a lisura do seu pescoço;" },
+            { q: "Como Jacó explicou a Isaque a rapidez com que encontrou a caça?", a: ["Disse que a caça estava perto", "Disse que usou um cavalo", "Disse que o Senhor Deus a mandou ao seu encontro", "Disse que Esaú o ajudou"], c: 2, r: "²⁰ ...E ele disse: Porque o Senhor teu Deus a mandou ao meu encontro." },
+            { q: "O que deixou Isaque confuso ao tocar em Jacó?", a: ["O cheiro da comida", "O fato de Jacó estar tremendo", "A voz era de Jacó, mas as mãos eram de Esaú", "As roupas estavam sujas"], c: 2, r: "²² ...A voz é a voz de Jacó, porém as mãos são as mãos de Esaú." },
+            { q: "Qual detalhe, além do toque, convenceu Isaque de que era Esaú?", a: ["O beijo e o cheiro das vestes", "O sabor exato do sal", "A força do abraço", "O som dos passos"], c: 0, r: "²⁷ ...então sentindo o cheiro das suas vestes, abençoou-o..." },
+            { q: "Quais elementos faziam parte da bênção de abundância dada a Jacó?", a: ["Ouro e Prata", "Orvalho dos céus, gorduras da terra, trigo e mosto", "Muitos filhos e filhas", "Terras no Egito"], c: 1, r: "²⁸ Assim, pois, te dê Deus do orvalho dos céus, e das gorduras da terra, e abundância de trigo e de mosto." },
+            { q: "O que aconteceu logo após Jacó sair da presença de Isaque?", a: ["Ele começou a chorar", "Rebeca o abraçou", "Esaú chegou da caça", "O Senhor falou com Isaque"], c: 2, r: "³⁰ ...apenas Jacó acabava de sair da presença de Isaque seu pai, veio Esaú, seu irmão, da sua caça;" },
+            { q: "Como Isaque reagiu quando Esaú se identificou?", a: ["Ficou com raiva de Esaú", "Estremeceu com um estremecimento muito grande", "Começou a rir", "Ficou em silêncio absoluto"], c: 1, r: "³³ Então estremeceu Isaque de um estremecimento muito grande..." },
+            { q: "O que Esaú fez ao saber que Jacó havia tomado sua bênção?", a: ["Bradou com um grande e amargo brado e chorou", "Jurou silêncio", "Saiu correndo para matar Jacó imediatamente", "Pediu perdão ao pai"], c: 0, r: "³⁴ Esaú... bradou com grande e mui amargo brado... ³⁸ ...E levantou Esaú a sua voz, e chorou." },
+            { q: "Segundo Esaú, quais foram as duas vezes que Jacó o enganou?", a: ["No nascimento e no casamento", "Na primogenitura e na bênção", "Na caça e no poço", "Na tenda e no campo"], c: 1, r: "³⁶ ...já duas vezes me enganou? A minha primogenitura me tomou, e eis que agora me tomou a minha bênção." },
+            { q: "Qual foi a profecia de Isaque para Esaú sobre sua relação com Jacó?", a: ["Que ele seria maior que Jacó", "Que ele viveria no deserto", "Que ele serviria a seu irmão, mas um dia sacudiria o jugo do pescoço", "Que eles nunca mais se veriam"], c: 2, r: "⁴⁰ ...e ao teu irmão servirás. Acontecerá, porém, que quando te assenhoreares, então sacudirás o seu jugo do teu pescoço." },
+            { q: "O que Esaú planejou fazer após a morte de seu pai?", a: ["Ir embora para longe", "Tomar as terras de Isaque", "Matar seu irmão Jacó", "Fazer um pacto com os heteus"], c: 2, r: "⁴¹ ...Esaú disse no seu coração: Chegar-se-ão os dias de luto de meu pai; e matarei a Jacó meu irmão." },
+            { q: "Para onde Rebeca mandou Jacó fugir?", a: ["Para o Egito", "Para a casa de Labão, em Harã", "Para o deserto de Sur", "Para Berseba"], c: 1, r: "⁴³ ...levanta-te; acolhe-te a Labão meu irmão, em Harã," },
+            { q: "Quanto tempo Rebeca inicialmente pensou que Jacó deveria ficar fora?", a: ["Para sempre", "Muitos anos", "Alguns dias, até passar o furor de Esaú", "Até Isaque morrer"], c: 2, r: "⁴⁴ E mora com ele alguns dias, até que passe o furor de teu irmão;" },
+            { q: "Qual foi a desculpa que Rebeca deu a Isaque para Jacó partir?", a: ["Que ele precisava trabalhar", "Que estava cansada das filhas de Hete e queria que Jacó casasse com alguém de sua parentela", "Que Jacó estava doente", "Que Deus a ordenou em sonho"], c: 1, r: "⁴⁶ E disse Rebeca a Isaque: Enfadada estou da minha vida, por causa das filhas de Hete; se Jacó tomar mulher das filhas de Hete... para que me servirá a vida?" },
+            { q: "Quem era Labão?", a: ["O pai de Rebeca", "O irmão de Rebeca", "O filho de Esaú", "O rei de Gerar"], c: 1, r: "⁴³ ...acolhe-te a Labão meu irmão, em Harã," }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 27.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

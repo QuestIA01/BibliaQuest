@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 43</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            text-align: center;
+            font-variant: small-caps;
+            border-bottom: 2px solid #8d6e63;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 20px;
+            color: #5d4037;
+        }
+
+        .question {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: rgba(141, 110, 99, 0.3);
+        }
+
+        .correct {
+            background-color: #a5d6a7 !important;
+            border-color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .wrong {
+            background-color: #ef9a9a !important;
+            border-color: #c62828;
+        }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz">
+    <h1>Gênesis 43</h1>
+    <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+
+    <div id="question-box">
+        <div class="question" id="question-text"></div>
+        <div class="options" id="options-container"></div>
+
+        <div id="reference-box">
+            <strong>Referência:</strong><br>
+            <span id="reference-text"></span>
+        </div>
+
+        <div class="next-container">
+            <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <h2>Estudo do Capítulo 43 Concluído</h2>
+        <p id="score-text"></p>
+        <button onclick="location.reload()" class="option-btn" style="width:100%; text-align:center;">
+            Recomeçar Capítulo 43
+        </button>
+    </div>
+
+    <div class="footer-nav">
+        <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    { q: "Como a Bíblia descreve a fome naquele tempo?", a: ["Moderada", "Leve", "Gravíssima", "Local"], c: 2, r: "¹ E a fome era gravíssima na terra." },
+
+    { q: "O que Jacó pediu aos filhos quando o mantimento acabou?", a: ["Que trabalhassem no campo", "Que voltassem ao Egito para comprar alimento", "Que jejuassem", "Que vendessem o gado"], c: 1, r: "² Voltai, comprai-nos um pouco de alimento." },
+
+    { q: "Qual condição José havia imposto para que os irmãos voltassem?", a: ["Trazer mais dinheiro", "Trazer o pai", "Trazer o irmão mais novo", "Trazer presentes"], c: 2, r: "³ Não vereis a minha face, se o vosso irmão não vier convosco." },
+
+    { q: "Quem se colocou como líder no diálogo com Israel (Jacó)?", a: ["Rúben", "Levi", "Judá", "Simeão"], c: 2, r: "³ Mas Judá respondeu-lhe..." },
+
+    { q: "O que Judá prometeu ao pai sobre Benjamim?", a: ["Que o protegeria com soldados", "Que seria fiador por ele", "Que o deixaria no Egito", "Que voltaria sozinho"], c: 1, r: "⁹ Eu serei fiador por ele..." },
+
+    { q: "Que sentimento Jacó expressou ao lembrar que revelou a existência de Benjamim?", a: ["Orgulho", "Medo", "Lamento", "Indiferença"], c: 2, r: "⁶ Por que me fizeste tal mal..." },
+
+    { q: "Que itens Israel mandou como presente ao governador do Egito?", a: ["Ouro e prata", "Animais", "Bálsamo, mel, especiarias e amêndoas", "Tecidos"], c: 2, r: "¹¹ Tomai do mais precioso desta terra..." },
+
+    { q: "Por que Israel mandou levar o dinheiro em dobro?", a: ["Para subornar", "Por segurança", "Para corrigir possível erro", "Por riqueza excessiva"], c: 2, r: "¹² Bem pode ser que fosse erro." },
+
+    { q: "Que oração Israel fez antes da viagem?", a: ["Por riquezas", "Por proteção militar", "Por misericórdia diante do homem", "Por vingança"], c: 2, r: "¹⁴ E Deus Todo-Poderoso vos dê misericórdia..." },
+
+    { q: "Quem desceu com os irmãos ao Egito desta vez?", a: ["Simeão", "Judá", "Benjamim", "Levi"], c: 2, r: "¹⁵ ...e a Benjamim." },
+
+    { q: "Qual foi a reação de José ao ver Benjamim?", a: ["Ira", "Indiferença", "Compaixão profunda", "Suspeita"], c: 2, r: "³⁰ ...as suas entranhas comoveram-se..." },
+
+    { q: "Onde José chorou ao ver seu irmão?", a: ["No salão", "Diante dos irmãos", "Na câmara", "No campo"], c: 2, r: "³⁰ ...entrou na câmara, e chorou ali." },
+
+    { q: "Por que os irmãos ficaram com medo ao serem levados à casa de José?", a: ["Achavam que seriam mortos", "Temiam por causa do dinheiro", "Tinham fome", "Não conheciam o local"], c: 1, r: "¹⁸ Por causa do dinheiro que dantes voltou..." },
+
+    { q: "O que o administrador disse sobre o dinheiro?", a: ["Foi roubado", "Foi erro humano", "Foi dádiva de Deus", "Foi castigo"], c: 2, r: "²³ O vosso Deus... vos tem dado um tesouro..." },
+
+    { q: "Qual irmão foi devolvido aos demais?", a: ["Judá", "Rúben", "Levi", "Simeão"], c: 3, r: "²³ E trouxe-lhes fora a Simeão." },
+
+    { q: "O que foi feito antes do almoço com José?", a: ["Jejum", "Sacrifício", "Lavar os pés", "Oração pública"], c: 2, r: "²⁴ ...lavaram os seus pés..." },
+
+    { q: "Como os irmãos se posicionaram diante de José?", a: ["Sentados", "Em pé", "Inclinados até à terra", "De joelhos"], c: 2, r: "²⁶ ...inclinaram-se a ele até à terra." },
+
+    { q: "Como José perguntou sobre Jacó?", a: ["Com indiferença", "Com desprezo", "Com interesse e cuidado", "Com ironia"], c: 2, r: "²⁷ Vosso pai... está bem?" },
+
+    { q: "Como foi a porção de Benjamim na refeição?", a: ["Igual às outras", "Menor", "Cinco vezes maior", "Inexistente"], c: 2, r: "³⁴ ...a porção de Benjamim era cinco vezes maior..." },
+
+    { q: "Como termina o capítulo?", a: ["Com medo", "Com julgamento", "Com alegria e celebração", "Com prisão"], c: 2, r: "³⁴ E eles beberam, e se regalaram com ele." }
+];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+    answered = false;
+    const q = quizData[currentQ];
+    document.getElementById('current-idx').innerText = currentQ + 1;
+    document.getElementById('total-questions').innerText = quizData.length;
+    document.getElementById('question-text').innerText = q.q;
+
+    document.getElementById('reference-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    q.a.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(i);
+        container.appendChild(btn);
+    });
+}
+
+function checkAnswer(idx) {
+    if (answered) return;
+    answered = true;
+
+    const buttons = document.querySelectorAll('.option-btn');
+    const correct = quizData[currentQ].c;
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (idx === correct) {
+        buttons[idx].classList.add('correct');
+        score++;
+    } else {
+        buttons[idx].classList.add('wrong');
+        buttons[correct].classList.add('correct');
+    }
+
+    document.getElementById('reference-text').innerText = quizData[currentQ].r;
+    document.getElementById('reference-box').style.display = 'block';
+    document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+    currentQ++;
+    if (currentQ < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('question-box').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('score-text').innerText =
+        `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 43.`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

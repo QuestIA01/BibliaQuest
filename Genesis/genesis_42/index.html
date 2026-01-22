@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 42</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 42</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 42 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 42</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Por que Jacó repreendeu seus filhos no início do capítulo?", a: ["Porque eles estavam brigando", "Porque eles não queriam trabalhar", "Porque eles estavam apenas olhando uns para os outros em vez de agir", "Porque eles perderam o gado"], c: 2, r: "¹ ...disse Jacó a seus filhos: Por que estais olhando uns para os outros?" },
+            { q: "Quantos irmãos de José desceram inicialmente ao Egito?", a: ["Doze", "Onze", "Dez", "Sete"], c: 2, r: "³ Então desceram os dez irmãos de José, para comprarem trigo no Egito." },
+            { q: "Por que Jacó não enviou Benjamim com os outros irmãos?", a: ["Porque ele era muito novo para viajar", "Com medo de que lhe sucedesse algum desastre", "Para ajudar nas tarefas de casa", "Porque Benjamim estava doente"], c: 1, r: "⁴ A Benjamim, porém... não enviou Jacó... porque dizia: Para que lhe não suceda, porventura, algum desastre." },
+            { q: "Qual era a posição de José no Egito quando seus irmãos chegaram?", a: ["Capitão da guarda", "Intérprete de sonhos", "Governador da terra", "Copeiro-mor"], c: 2, r: "⁶ José, pois, era o governador daquela terra; ele vendia a todo o povo..." },
+            { q: "O que os irmãos fizeram ao chegar diante de José?", a: ["Abraçaram-no", "Pediram perdão", "Inclinaram-se com o rosto em terra", "Não o reconheceram e o ignoraram"], c: 2, r: "⁶ ...e os irmãos de José chegaram e inclinaram-se a ele, com o rosto em terra." },
+            { q: "Como José reagiu ao reconhecer seus irmãos?", a: ["Revelou-se imediatamente", "Mostrou-se estranho e falou asperamente", "Mandou prendê-los para execução", "Fugiu da presença deles"], c: 1, r: "⁷ ...porém mostrou-se estranho para com eles, e falou-lhes asperamente..." },
+            { q: "De que José acusou seus irmãos?", a: ["De serem ladrões de trigo", "De serem assassinos", "De serem espias que vieram ver a nudez da terra", "De serem nômades ilegais"], c: 2, r: "⁹ ...e disse-lhes: Vós sois espias, e viestes para ver a nudez da terra." },
+            { q: "Como os irmãos descreveram sua família para se defenderem?", a: ["Disseram que eram filhos de um mesmo homem e homens de retidão", "Disseram que eram servos de Faraó", "Disseram que eram órfãos", "Disseram que eram mercadores do deserto"], c: 0, r: "¹¹ Todos nós somos filhos de um mesmo homem; somos homens de retidão; os teus servos não são espias." },
+            { q: "Segundo os irmãos, onde estava o irmão mais novo naquele momento?", a: ["Estava morto", "Estava na prisão", "Estava com o pai deles na terra de Canaã", "Estava perdido no Egito"], c: 2, r: "¹³ ...e eis que o mais novo está com nosso pai hoje; mas um já não existe." },
+            { q: "Qual foi a primeira prova que José propôs para testar a veracidade deles?", a: ["Que todos fossem enforcados", "Que enviassem um deles para buscar o irmão mais novo enquanto os outros ficavam presos", "Que pagassem o dobro pelo trigo", "Que trabalhassem nas obras do Egito"], c: 1, r: "¹⁶ Enviai um dentre vós, que traga vosso irmão, mas vós ficareis presos..." },
+            { q: "Quanto tempo José manteve todos os irmãos juntos na prisão?", a: ["Um dia", "Três dias", "Sete dias", "Quarenta dias"], c: 1, r: "¹⁷ E pô-los juntos, em prisão, três dias." },
+            { q: "Por que José decidiu mudar o plano e deixar apenas um preso?", a: ["Porque ele ficou com pena", "Porque ele temia a Deus", "Porque Faraó ordenou", "Porque não havia celas suficientes"], c: 1, r: "¹⁸ E ao terceiro dia disse-lhes José: Fazei isso, e vivereis; porque eu temo a Deus." },
+            { q: "Qual pecado do passado os irmãos lembraram durante a angústia no Egito?", a: ["A mentira sobre a túnica", "A culpa acerca de seu irmão (José) e a angústia da sua alma", "O roubo de gado", "A desobediência a Jacó"], c: 1, r: "²¹ Então disseram uns aos outros: Na verdade, somos culpados acerca de nosso irmão..." },
+            { q: "Quem disse aos outros que o sangue de José estava sendo requerido?", a: ["Judá", "Simeão", "Rúben", "Levi"], c: 2, r: "²² E Rúben respondeu-lhes... não pequeis contra o menino... e vedes aqui, o seu sangue também é requerido." },
+            { q: "Como José conseguia entender os irmãos sem que eles soubessem?", a: ["Ele lia pensamentos", "Eles falavam egípcio", "Havia um intérprete entre eles", "Ele estava fingindo ser surdo"], c: 2, r: "²³ E eles não sabiam que José os entendia, porque havia intérprete entre eles." },
+            { q: "Qual irmão José tomou e amarrou perante os olhos dos outros?", a: ["Rúben", "Simeão", "Judá", "Levi"], c: 1, r: "²⁴ ...e tomou a Simeão dentre eles, e amarrou-o perante os seus olhos." },
+            { q: "O que José ordenou secretamente que fizessem com o dinheiro dos irmãos?", a: ["Que fosse dado aos pobres", "Que fosse colocado na boca dos sacos de trigo", "Que fosse confiscado para o tesouro", "Que fosse queimado"], c: 1, r: "²⁵ E ordenou José... que lhes restituíssem o seu dinheiro a cada um no seu saco..." },
+            { q: "O que os irmãos sentiram quando descobriram o dinheiro no saco na estalagem?", a: ["Alegria por terem o dinheiro de volta", "Desfaleceu-lhes o coração e pasmavam perante Deus", "Raiva de José", "Indiferença"], c: 1, r: "²⁸ ...Então lhes desfaleceu o coração, e pasmavam, dizendo um ao outro: Que é isto que Deus nos tem feito?" },
+            { q: "O que Jacó disse aos filhos quando soube que Benjamim deveria ir ao Egito?", a: ["Vão logo buscar Simeão", "Tendes-me desfilhado... todas estas coisas vieram sobre mim", "Deus proverá no caminho", "Benjamim é forte e pode ir"], c: 1, r: "³⁶ Então Jacó... disse-lhes: Tendes-me desfilhado; José já não existe e Simeão não está aqui; agora levareis a Benjamim." },
+            { q: "O que Rúben ofereceu em garantia para trazer Benjamim de volta?", a: ["Seu próprio gado", "Sua vida", "A morte de seus dois filhos, caso não o trouxesse", "Todo o trigo comprado"], c: 2, r: "³⁷ Mas Rúben falou a seu pai, dizendo: Mata os meus dois filhos, se eu não tornar a trazê-lo para ti..." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 42.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

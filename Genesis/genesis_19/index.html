@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 19</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 19</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 19 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 19</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Quem estava assentado à porta de Sodoma quando os dois anjos chegaram à tarde?", a: ["Abraão", "Ló", "O rei de Sodoma", "Os genros de Ló"], c: 1, r: "¹ ...e estava Ló assentado à porta de Sodoma; e vendo-os Ló, levantou-se ao seu encontro..." },
+            { q: "Qual foi a resposta inicial dos anjos ao convite de Ló para pousarem em sua casa?", a: ["Aceitaram imediatamente", "Disseram que voltariam depois", "Disseram: Não, antes na rua passaremos a noite", "Pediram comida primeiro"], c: 2, r: "² ...E eles disseram: Não, antes na rua passaremos a noite." },
+            { q: "O que Ló preparou para os anjos comerem em sua casa?", a: ["Cordeiro assado", "Banquete e bolos sem levedura", "Frutas e mel", "Pão e vinho apenas"], c: 1, r: "³ ...e fez-lhes banquete, e cozeu bolos sem levedura, e comeram." },
+            { q: "Quem cercou a casa de Ló antes que se deitassem?", a: ["Apenas os soldados", "Os estrangeiros da cidade", "Os homens de Sodoma, desde o moço até o velho", "Apenas os vizinhos"], c: 2, r: "⁴ ...cercaram a casa, os homens daquela cidade, os homens de Sodoma, desde o moço até ao velho..." },
+            { q: "O que o povo de Sodoma exigiu que Ló fizesse com os visitantes?", a: ["Que pagassem impostos", "Que fossem expulsos da cidade", "Que os trouxesse fora para que os 'conhecessem'", "Que dessem suas roupas"], c: 2, r: "⁵ ...Traze-os fora a nós, para que os conheçamos." },
+            { q: "O que Ló fez ao sair para falar com os homens da cidade?", a: ["Deixou a porta aberta", "Chamou a polícia", "Fechou a porta atrás de si", "Fugiu pelos fundos"], c: 2, r: "⁶ Então saiu Ló a eles à porta, e fechou a porta atrás de si," },
+            { q: "Como Ló chamou os homens de Sodoma ao tentar acalmá-los?", a: ["Meus inimigos", "Meus senhores", "Meus irmãos", "Cidadãos"], c: 2, r: "⁷ E disse: Meus irmãos, rogo-vos que não façais mal;" },
+            { q: "O que Ló ofereceu absurdamente aos homens para proteger os visitantes?", a: ["Todo o seu ouro", "Suas duas filhas que não conheceram homens", "Sua própria vida", "Sua casa"], c: 1, r: "⁸ Eis aqui, duas filhas tenho... fora vo-las trarei... somente nada façais a estes homens..." },
+            { q: "De que os homens de Sodoma acusaram Ló quando ele tentou intervir?", a: ["De ser um ladrão", "De ser um espião", "De querer ser juiz em tudo sendo estrangeiro", "De ser pobre"], c: 2, r: "⁹ ...Como estrangeiro este indivíduo veio aqui habitar, e quereria ser juiz em tudo?" },
+            { q: "Como os visitantes salvaram Ló do ataque da multidão?", a: ["Usaram espadas", "Fizeram descer fogo", "Estenderam as mãos, puxaram Ló para dentro e fecharam a porta", "Chamaram Abraão"], c: 2, r: "¹⁰ Aqueles homens porém estenderam as suas mãos e fizeram entrar a Ló consigo na casa..." },
+            { q: "O que aconteceu com os homens que estavam à porta da casa?", a: ["Foram consumidos pelo fogo", "Foram feridos de cegueira", "Caíram mortos", "Foram transformados em pedras"], c: 1, r: "¹¹ E feriram de cegueira os homens que estavam à porta da casa... de maneira que se cansaram para achar a porta." },
+            { q: "Quem os anjos disseram que Ló deveria tirar da cidade?", a: ["Apenas sua mulher", "Genros, filhos, filhas e todos quantos tivesse na cidade", "Ninguém, apenas ele mesmo", "Seus animais"], c: 1, r: "¹² ...Teu genro, e teus filhos, e tuas filhas, e todos quantos tens nesta cidade, tira-os fora deste lugar;" },
+            { q: "Qual o motivo da destruição da cidade segundo o versículo 13?", a: ["Falta de comida", "O clamor aumentou diante da face do Senhor", "Uma guerra civil", "Um terremoto natural"], c: 1, r: "¹³ Porque nós vamos destruir este lugar, porque o seu clamor tem aumentado diante da face do Senhor..." },
+            { q: "Como Ló foi visto por seus genros ao avisá-los da destruição?", a: ["Como um profeta", "Como um sábio", "Como um zombador", "Como um louco"], c: 2, r: "¹⁴ ...Foi tido porém por zombador aos olhos de seus genros." },
+            { q: "O que os anjos disseram a Ló ao amanhecer?", a: ["Durma mais um pouco", "Levanta-te, toma tua mulher e tuas duas filhas... para que não pereças", "Fique calmo", "Vá para o Egito"], c: 1, r: "¹⁵ ...Levanta-te, toma tua mulher e tuas duas filhas que aqui estão, para que não pereças..." },
+            { q: "Como Ló e sua família foram retirados da cidade quando ele se demorava?", a: ["Foram levados em cavalos", "Os anjos lhes pegaram pela mão e os tiraram", "Foram expulsos pelo povo", "Saíram correndo sozinhos"], c: 1, r: "¹⁶ ...aqueles homens lhe pegaram pela mão... sendo-lhe o Senhor misericordioso, e tiraram-no..."},
+            { q: "Quais foram as três ordens dadas a Ló ao ser tirado fora (v. 17)?", a: ["Corre, grita e olha", "Lava-te, come e foge", "Escapa por tua vida, não olhes para trás e não pares na campina", "Vá para Sodoma, avise a todos e volte"], c: 2, r: "¹⁷ ...Escapa-te por tua vida; não olhes para trás de ti, e não pares em toda esta campina..." },
+            { q: "Ló aceitou fugir para o monte inicialmente?", a: ["Sim, ele foi direto", "Não, ele disse: Ora, não, meu Senhor!", "Ele sugeriu voltar para Sodoma", "Ele pediu para ir para o mar"], c: 1, r: "¹⁸ E Ló disse-lhe: Ora, não, meu Senhor!" },
+            { q: "Por que Ló não queria ir para o monte?", a: ["Porque era muito longe", "Temia que o mal o apanhasse e ele morresse", "Porque não tinha água lá", "Porque era muito alto"], c: 1, r: "¹⁹ ...mas eu não posso escapar no monte, para que porventura não me apanhe este mal, e eu morra." },
+            { q: "Para onde Ló pediu permissão para fugir?", a: ["Para Gomorra", "Para uma cidade pequena que estava perto", "Para a tenda de Abraão", "Para o deserto"], c: 1, r: "²⁰ Eis que agora aquela cidade está perto, para fugir para lá, e é pequena..." },
+            { q: "O Senhor aceitou o pedido de Ló sobre a pequena cidade?", a: ["Não, ele teve que ir ao monte", "Sim, o Senhor disse: tenho-te aceitado também neste negócio", "O Senhor não respondeu", "Os anjos o proibiram"], c: 1, r: "²¹ E disse-lhe: Eis aqui, tenho-te aceitado também neste negócio, para não destruir aquela cidade..." },
+            { q: "Qual o nome da cidade para onde Ló fugiu?", a: ["Bela", "Zoar", "Manre", "Sodoma"], c: 1, r: "²² ...Por isso se chamou o nome da cidade Zoar." },
+            { q: "Quando foi que Ló entrou em Zoar?", a: ["Ao pôr do sol", "À meia-noite", "Quando o sol saiu sobre a terra", "Ao meio-dia"], c: 2, r: "²³ Saiu o sol sobre a terra, quando Ló entrou em Zoar." },
+            { q: "O que o Senhor fez chover sobre Sodoma e Gomorra?", a: ["Água em abundância", "Pedras de granizo", "Enxofre e fogo", "Poeira e vento"], c: 2, r: "²⁴ Então o Senhor fez chover enxofre e fogo, do Senhor desde os céus..." },
+            { q: "O que foi destruído além das cidades de Sodoma e Gomorra?", a: ["Nada mais", "Toda a campina, os moradores e o que nascia da terra", "Apenas os templos", "Apenas os portões"], c: 1, r: "²⁵ E destruiu aquelas cidades e toda aquela campina, e todos os moradores... e o que nascia da terra." },
+            { q: "O que aconteceu com a mulher de Ló quando ela olhou para trás?", a: ["Ela se perdeu", "Ficou cega", "Ficou convertida numa estátua de sal", "Caiu em um buraco"], c: 2, r: "²⁶ E a mulher de Ló olhou para trás e ficou convertida numa estátua de sal." },
+            { q: "Para onde Abraão foi na manhã da destruição?", a: ["Para o Egito", "Para o lugar onde estivera diante da face do Senhor", "Para Zoar procurar Ló", "Para sua tenda dormir"], c: 1, r: "²⁷ E Abraão levantou-se... e foi para aquele lugar onde estivera diante da face do Senhor;" },
+            { q: "Como era a fumaça que Abraão viu subir da terra?", a: ["Fumaça branca e leve", "Como a fumaça de uma fornalha", "Fumaça de incenso", "Não viu fumaça"], c: 1, r: "²⁸ ...viu, e eis que a fumaça da terra subia, como a fumaça de uma fornalha." },
+            { q: "Por causa de quem Deus tirou Ló do meio da destruição?", a: ["Por causa de Ló", "Lembrou-se Deus de Abraão", "Por causa das filhas de Ló", "Por causa de Sara"], c: 1, r: "²⁹ ...lembrou-se Deus de Abraão, e tirou a Ló do meio da destruição..." },
+            { q: "Onde Ló passou a habitar depois de sair de Zoar?", a: ["Em Canaã", "Numa caverna no monte com suas filhas", "De volta a Sodoma", "Na casa de Abraão"], c: 1, r: "³⁰ E subiu Ló de Zoar... e habitou numa caverna, ele e as suas duas filhas." },
+            { q: "Qual era a preocupação da filha primogênita de Ló?", a: ["Com a falta de comida", "Que não havia homem na terra para lhes dar descendência", "Com a morte da mãe", "Com o calor da caverna"], c: 1, r: "³¹ ...Nosso pai já é velho, e não há homem na terra que entre a nós..." },
+            { q: "Qual foi o plano das filhas de Ló?", a: ["Voltar para a cidade", "Dar vinho ao pai e deitar-se com ele para conservar a descendência", "Pedir ajuda a Abraão", "Viver sozinhas para sempre"], c: 1, r: "³² Vem, demos de beber vinho a nosso pai, e deitemo-nos com ele..." },
+            { q: "O que aconteceu na primeira noite com a primogênita?", a: ["Ló a expulsou", "Ela se deitou com o pai e ele não sentiu", "Eles oraram juntos", "Ela fugiu da caverna"], c: 1, r: "³³ ...e deitou-se com seu pai, e não sentiu ele quando ela se deitou, nem quando se levantou." },
+            { q: "O que as filhas fizeram na segunda noite?", a: ["Foram dormir cedo", "Repetiram o plano com a filha menor", "Pediram perdão", "Saíram da caverna"], c: 1, r: "³⁵ E deram de beber vinho a seu pai também naquela noite; e levantou-se a menor, e deitou-se com ele..." },
+            { q: "Ló percebeu quando a filha menor se deitou e se levantou?", a: ["Sim, ele acordou", "Não sentiu ele quando ela se deitou, nem quando se levantou", "Ele ficou feliz", "Ele brigou com ela"], c: 1, r: "³⁵ ...e não sentiu ele quando ela se deitou, nem quando se levantou." },
+            { q: "Qual foi o resultado da ação das filhas de Ló?", a: ["Foram castigadas", "Conceberam as duas filhas de Ló de seu pai", "Ficaram doentes", "Nada aconteceu"], c: 1, r: "³⁶ E conceberam as duas filhas de Ló de seu pai." },
+            { q: "Qual o nome do filho da primogênita e de quem ele é pai?", a: ["Moabe, pai dos moabitas", "Ben-Ami, pai dos amonitas", "Ismael", "Isaque"], c: 0, r: "³⁷ ...chamou o seu nome Moabe; este é o pai dos moabitas até ao dia de hoje." },
+            { q: "Qual o nome do filho da menor e de quem ele é pai?", a: ["Moabe", "Ben-Ami, pai dos filhos de Amom", "Esaú", "Jacó"], c: 1, r: "³⁸ ...chamou o seu nome Ben-Ami; este é o pai dos filhos de Amom até o dia de hoje." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} versículos.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

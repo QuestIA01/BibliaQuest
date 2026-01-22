@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 15</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 15</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Fim do Capítulo 15</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Tentar Novamente</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Como o Senhor se apresentou a Abrão no versículo 1?", a: ["Como um fogo consumidor", "Como seu escudo e seu grandíssimo galardão", "Como o criador dos mundos", "Como o juiz da terra"], c: 1, r: "¹ ...Não temas, Abrão, eu sou o teu escudo, o teu grandíssimo galardão." },
+            { q: "Quem Abrão acreditava que seria seu herdeiro antes da resposta de Deus?", a: ["Ló, seu sobrinho", "Ismael, seu filho", "Eliézer, o damasceno", "Um servo de Ur"], c: 2, r: "²-³ ...e o mordomo da minha casa é o damasceno Eliézer? ...eis que um nascido na minha casa será o meu herdeiro." },
+            { q: "Qual foi a promessa específica de Deus sobre o herdeiro de Abrão?", a: ["Que ele adotaria um filho", "Que Ló voltaria para ele", "Que aquele que de suas entranhas saísse seria o herdeiro", "Que não precisaria de herdeiro"], c: 2, r: "⁴ ...mas aquele que de tuas entranhas sair, este será o teu herdeiro." },
+            { q: "A que Deus comparou a descendência de Abrão ao levá-lo para fora?", a: ["À areia do mar", "Às estrelas do céu", "Ao pó da terra", "Às folhas das árvores"], c: 1, r: "⁵ ...Olha agora para os céus, e conta as estrelas... Assim será a tua descendência." },
+            { q: "Qual foi a reação de Abrão à promessa de Deus no versículo 6?", a: ["Ele duvidou e riu", "Ele creu no Senhor", "Ele pediu um sinal imediato", "Ele ficou em silêncio"], c: 1, r: "⁶ E creu ele no Senhor, e imputou-lhe isto por justiça." },
+            { q: "De onde Deus disse que tirou Abrão para lhe dar a terra?", a: ["De Harã", "Do Egito", "De Ur dos Caldeus", "De Canaã"], c: 2, r: "⁷ ...Eu sou o Senhor, que te tirei de Ur dos caldeus, para dar-te a ti esta terra..." },
+            { q: "Quais animais Abrão teve que preparar para a aliança?", a: ["Um cordeiro e dois pombos", "Bezerra, cabra, carneiro (de 3 anos), rola e pombinho", "Um boi e uma ovelha", "Apenas aves do céu"], c: 1, r: "⁹ ...Toma-me uma bezerra de três anos, e uma cabra de três anos, e um carneiro de três anos, uma rola e um pombinho." },
+            { q: "O que Abrão fez com os animais, com exceção das aves?", a: ["Queimou-os totalmente", "Partiu-os pelo meio e pôs as partes em frente uma da outra", "Enterrou-os", "Ofereceu o sangue no altar"], c: 1, r: "¹⁰ ...e partiu-os pelo meio, e pôs cada parte deles em frente da outra; mas as aves não partiu." },
+            { q: "O que aconteceu quando as aves de rapina desceram sobre os cadáveres?", a: ["Consumiram a oferta", "Abrão as enxotava", "Ficaram presas nos animais", "Foram mortas por Abrão"], c: 1, r: "¹¹ E as aves desciam sobre os cadáveres; Abrão, porém, as enxotava." },
+            { q: "O que caiu sobre Abrão quando o sol se pôs?", a: ["Uma chuva forte", "Um profundo sono, grande espanto e escuridão", "Um anjo do Senhor", "Uma voz do céu"], c: 1, r: "¹² E pondo-se o sol, um profundo sono caiu sobre Abrão; e eis que grande espanto e grande escuridão caiu sobre ele." },
+            { q: "Por quanto tempo Deus profetizou que a descendência de Abrão seria afligida?", a: ["100 anos", "400 anos", "430 anos", "1000 anos"], c: 1, r: "¹³ ...e será reduzida à escravidão, e será afligida por quatrocentos anos," },
+            { q: "Por que a quarta geração voltaria para a terra, segundo o versículo 16?", a: ["Porque seriam muitos", "Porque a medida da injustiça dos amorreus não estava cheia", "Porque o Egito seria destruído", "Porque Abrão pediria"], c: 1, r: "¹⁶ E a quarta geração tornará para cá; porque a medida da injustiça dos amorreus não está ainda cheia." },
+            { q: "O que passou entre as metades dos animais divididos?", a: ["Um vento forte", "Um forno de fumaça e uma tocha de fogo", "O próprio Abrão", "Uma coluna de nuvem"], c: 1, r: "¹⁷ ...e eis um forno de fumaça, e uma tocha de fogo, que passou por aquelas metades." },
+            { q: "Quais são os limites da terra prometidos na aliança de Deus?", a: ["De Jerusalém até Roma", "Do rio do Egito até ao grande rio Eufrates", "Do Mar Morto até ao Mediterrâneo", "Apenas a cidade de Hebrom"], c: 1, r: "¹⁸ ...À tua descendência tenho dado esta terra, desde o rio do Egito até ao grande rio Eufrates;" },
+            { q: "Quantos povos/nações são listados como habitantes da terra no final do capítulo?", a: ["7 nações", "10 nações (do Queneu ao Jebuseu)", "12 nações", "3 nações"], c: 1, r: "¹⁹-²¹ (Lista 10 povos: Queneu, quenezeu, cadmoneu, heteu, perizeu, refains, amorreu, cananeu, girgaseu e jebuseu)." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Você acertou ${score} de ${quizData.length} perguntas!`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

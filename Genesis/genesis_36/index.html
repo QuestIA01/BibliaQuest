@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 36</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 36</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 36 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 36</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Qual é o outro nome dado a Esaú no capítulo 36?", a: ["Israel", "Edom", "Seir", "Amaleque"], c: 1, r: "¹ E estas são as gerações de Esaú (que é Edom)." },
+            { q: "De onde eram as mulheres que Esaú tomou por esposas?", a: ["De Harã", "Das filhas de Canaã", "Do Egito", "De Ur"], c: 1, r: "² Esaú tomou suas mulheres das filhas de Canaã..." },
+            { q: "Quem era a filha de Ismael que Esaú tomou por mulher?", a: ["Ada", "Basemate", "Aolibama", "Rebeca"], c: 1, r: "³ E a Basemate, filha de Ismael, irmã de Nebaiote." },
+            { q: "Quem foi o filho de Ada e Esaú?", a: ["Reuel", "Jeús", "Elifaz", "Amaleque"], c: 2, r: "⁴ E Ada teve de Esaú a Elifaz..." },
+            { q: "Por que Esaú se apartou de seu irmão Jacó e foi para outra terra?", a: ["Por causa de uma briga", "Porque os bens deles eram muitos e a terra não os podia sustentar", "Porque Jacó o expulsou", "Para buscar novas esposas"], c: 1, r: "⁷ Porque os bens deles eram muitos para habitarem juntos; e a terra de suas peregrinações não os podia sustentar..." },
+            { q: "Onde Esaú habitou após se apartar de Jacó?", a: ["No vale de Siquém", "Na terra de Gileade", "Na montanha de Seir", "No deserto de Parã"], c: 2, r: "⁸ Portanto Esaú habitou na montanha de Seir; Esaú é Edom." },
+            { q: "Quais foram os filhos de Elifaz, primogênito de Esaú?", a: ["Naate, Zerá, Samá e Mizá", "Temã, Omar, Zefô, Gaetã e Quenaz", "Jeús, Jalão e Coré", "Uz e Arã"], c: 1, r: "¹¹ E os filhos de Elifaz foram: Temã, Omar, Zefô, Gaetã e Quenaz." },
+            { q: "Quem era a concubina de Elifaz que deu à luz Amaleque?", a: ["Ada", "Timna", "Basemate", "Aolibama"], c: 1, r: "¹² E Timna era concubina de Elifaz... e teve de Elifaz a Amaleque." },
+            { q: "Quais são os filhos de Basemate, mulher de Esaú?", a: ["Temã e Omar", "Jeús e Jalão", "Naate, Zerá, Samá e Mizá", "Hori e Homã"], c: 2, r: "¹³ E estes foram os filhos de Reuel: Naate, Zerá, Samá e Mizá; estes foram os filhos de Basemate..." },
+            { q: "Quem foram os moradores originais da terra de Seir mencionados no texto?", a: ["Os cananeus", "Os filhos de Israel", "Os filhos de Seir, horeu", "Os filisteus"], c: 2, r: "²⁰ Estes são os filhos de Seir, horeu, moradores daquela terra..." },
+            { q: "Quem foi o personagem que 'achou as mulas no deserto'?", a: ["Elifaz", "Aná", "Zibeão", "Lotã"], c: 1, r: "²⁴ ...este é o Aná que achou as mulas no deserto, quando apascentava os jumentos de Zibeão, seu pai." },
+            { q: "O que o texto diz sobre a soberania em Edom antes de Israel?", a: ["Que Edom nunca teve reis", "Que os reis de Israel governavam Edom", "Que reinaram reis em Edom antes que reinasse rei algum em Israel", "Que os juízes governavam Edom"], c: 2, r: "³¹ E estes são os reis que reinaram na terra de Edom, antes que reinasse rei algum sobre os filhos de Israel." },
+            { q: "Quem foi o primeiro rei mencionado que reinou em Edom?", a: ["Bela, filho de Beor", "Jobabe", "Husão", "Hadade"], c: 0, r: "³² Reinou, pois, em Edom Bela, filho de Beor..." },
+            { q: "Qual rei de Edom 'feriu a Midiã no campo de Moabe'?", a: ["Saul de Reobote", "Hadade, filho de Bedade", "Baal-Hanã", "Samlá"], c: 1, r: "³⁵ ...e em seu lugar reinou Hadade, filho de Bedade, o que feriu a Midiã, no campo de Moabe..." },
+            { q: "De onde era o rei Saul mencionado no versículo 37?", a: ["De Bozra", "De Dinabá", "De Reobote, junto ao rio", "De Avite"], c: 2, r: "³⁷ ...e Saul de Reobote, junto ao rio, reinou em seu lugar." },
+            { q: "Quem foi o sucessor do rei Saul em Edom?", a: ["Hadade", "Baal-Hanã, filho de Acbor", "Hadar", "Bela"], c: 1, r: "³⁸ E morreu Saul; e Baal-Hanã, filho de Acbor, reinou em seu lugar." },
+            { q: "Qual era o nome da mulher do rei Hadar?", a: ["Meetabel", "Matrede", "Me-Zaabe", "Timna"], c: 0, r: "³⁹ ...e Hadar reinou em seu lugar... e o nome de sua mulher foi Meetabel..." },
+            { q: "Como o texto classifica os líderes de Esaú (Edom)?", a: ["Como juízes", "Como patriarcas", "Como príncipes", "Como profetas"], c: 2, r: "⁴⁰ E estes são os nomes dos príncipes de Esaú, segundo as suas gerações..." },
+            { q: "O versículo 43 encerra identificando Esaú como:", a: ["O rei de Canaã", "O pai de Edom", "O servo de Jacó", "O príncipe de Siquém"], c: 1, r: "⁴³ ...Este é Esaú, pai de Edom." },
+            { q: "Quantos filhos Esaú teve na terra de Canaã antes de mudar-se?", a: ["3 filhos", "5 filhos", "12 filhos", "7 filhos"], c: 1, r: "⁴-⁵ (Elifaz, Reuel, Jeús, Jalão, Coré) ...estes são os filhos de Esaú, que lhe nasceram na terra de Canaã." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 36.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

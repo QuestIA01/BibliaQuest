@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 18</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 18</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo de Versículos Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Refazer Capítulo 18</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Onde Abraão estava quando o Senhor lhe apareceu no calor do dia?", a: ["Junto ao rio Jordão", "Nos carvalhais de Manre", "No monte Moriá", "Em Berseba"], c: 1, r: "¹ Depois apareceu-lhe o Senhor nos carvalhais de Manre..." },
+            { q: "O que Abraão fez ao ver três homens em pé junto a ele?", a: ["Escondeu-se na tenda", "Chamou seus servos", "Correu ao encontro deles e inclinou-se à terra", "Pediu que fossem embora"], c: 2, r: "² ...vendo-os, correu da porta da tenda ao seu encontro e inclinou-se à terra," },
+            { q: "Como Abraão se dirigiu a um deles e o que rogou?", a: ["Chamou de amigo e pediu conselhos", "Chamou de Meu Senhor e rogou que não passasse de seu servo", "Pediu por riquezas", "Perguntou de onde vinham"], c: 1, r: "³ E disse: Meu Senhor... rogo-te que não passes de teu servo." },
+            { q: "O que Abraão ofereceu para que os visitantes lavassem os pés?", a: ["Vinho fino", "Azeite", "Um pouco de água", "Leite morno"], c: 2, r: "⁴ Que se traga já um pouco de água, e lavai os vossos pés..." },
+            { q: "Qual o propósito de Abraão ao trazer um bocado de pão?", a: ["Para que guardassem para a viagem", "Para que esforçassem o coração antes de passar adiante", "Para mostrar sua riqueza", "Para cumprir um ritual"], c: 1, r: "⁵ E trarei um bocado de pão, para que esforceis o vosso coração; depois passareis adiante..." },
+            { q: "O que Abraão pediu para Sara preparar e em qual quantidade?", a: ["Dois pães de cevada", "Três medidas de flor de farinha para fazer bolos", "Uma medida de trigo", "Mel e frutas"], c: 1, r: "⁶ ...Amassa depressa três medidas de flor de farinha, e faze bolos." },
+            { q: "Que animal Abraão escolheu para servir aos visitantes?", a: ["Um cordeiro velho", "Uma vitela tenra e boa", "Um bode", "Um novilho de um ano"], c: 1, r: "⁷ E correu Abraão às vacas, e tomou uma vitela tenra e boa..." },
+            { q: "Além da vitela, o que mais Abraão pôs diante dos visitantes?", a: ["Vinho e mel", "Manteiga e leite", "Azeite e ervas", "Água e frutas"], c: 1, r: "⁸ E tomou manteiga e leite, e a vitela que tinha preparado..." },
+            { q: "O que os visitantes perguntaram a Abraão enquanto comiam?", a: ["Para onde ele ia", "Onde está Sara, tua mulher?", "Quantos servos ele tinha", "Se ele era feliz"], c: 1, r: "⁹ E disseram-lhe: Onde está Sara, tua mulher?" },
+            { q: "Qual foi a promessa feita no versículo 10?", a: ["Que Abraão seria rico", "Que Sara teria um filho por este tempo da vida", "Que a terra seria dele", "Que ele viveria muito"], c: 1, r: "¹⁰ ...Certamente tornarei a ti... e eis que Sara tua mulher terá um filho." },
+            { q: "Qual era a condição física de Abraão e Sara naquela época?", a: ["Eram jovens e fortes", "Já eram velhos e adiantados em idade", "Sara estava doente", "Abraão estava cansado"], c: 1, r: "¹¹ E eram Abraão e Sara já velhos, e adiantados em idade..." },
+            { q: "Qual foi a reação interna de Sara ao ouvir a promessa?", a: ["Ela chorou de alegria", "Riu-se consigo mesma duvidando por ser velha", "Ajoelhou-se para agradecer", "Ficou em silêncio"], c: 1, r: "¹² Assim, pois, riu-se Sara consigo, dizendo: Terei ainda deleite depois de haver envelhecido...?" },
+            { q: "O que o Senhor perguntou a Abraão sobre a reação de Sara?", a: ["Por que Sara está feliz?", "Por que se riu Sara?", "Por que Sara fugiu?", "Onde Sara se escondeu?"], c: 1, r: "¹³ E disse o Senhor a Abraão: Por que se riu Sara...?" },
+            { q: "Qual pergunta retórica o Senhor fez no versículo 14?", a: ["Quem é o homem?", "Haveria coisa alguma difícil ao Senhor?", "Onde está a fé?", "Por que duvidais?"], c: 1, r: "¹⁴ Haveria coisa alguma difícil ao Senhor?" },
+            { q: "Por que Sara negou que tivesse rido?", a: ["Por orgulho", "Porquanto temeu", "Por esquecimento", "Para testar o anjo"], c: 1, r: "¹⁵ E Sara negou, dizendo: Não me ri; porquanto temeu." },
+            { q: "Para que lado os homens olharam ao se levantarem?", a: ["Para o Egito", "Para o lado de Sodoma", "Para o norte", "Para o mar"], c: 1, r: "¹⁶ ...e olharam para o lado de Sodoma; e Abraão ia com eles, acompanhando-os." },
+            { q: "O que o Senhor disse no versículo 17?", a: ["Vou destruir o mundo", "Ocultarei eu a Abraão o que faço?", "Abraão, volta para casa", "Abençoarei os homens"], c: 1, r: "¹⁷ E disse o Senhor: Ocultarei eu a Abraão o que faço," },
+            { q: "O que Abraão certamente viria a ser, segundo o versículo 18?", a: ["Um grande guerreiro", "Uma grande e poderosa nação", "Um rei no Egito", "O homem mais rico"], c: 1, r: "¹⁸ Visto que Abraão certamente virá a ser uma grande e poderosa nação..." },
+            { q: "Para que Deus conhecia Abraão (v. 19)?", a: ["Para que ficasse rico", "Para que ordenasse a seus filhos guardarem o caminho do Senhor", "Para que vencesse guerras", "Para que morasse em tendas"], c: 1, r: "¹⁹ ...sei que ele há de ordenar a seus filhos... para que guardem o caminho do Senhor..." },
+            { q: "O que se multiplicou e se agravou em Sodoma e Gomorra?", a: ["A riqueza e o ouro", "O clamor e o pecado", "A população e os muros", "As festas e o vinho"], c: 1, r: "²⁰ ...Porquanto o clamor de Sodoma e Gomorra se tem multiplicado, e... o seu pecado se tem agravado muito," },
+            { q: "Com que objetivo o Senhor disse que desceria às cidades?", a: ["Para destruir sem olhar", "Para ver se tinham praticado segundo o clamor vindo até Ele", "Para salvar a todos", "Para construir um altar"], c: 1, r: "²¹ Descerei agora, e verei se com efeito têm praticado segundo o seu clamor..." },
+            { q: "O que Abraão fez quando os homens foram para Sodoma?", a: ["Ficou ainda em pé diante da face do Senhor", "Foi dormir", "Correu para avisar Ló", "Voltou para Sara"], c: 0, r: "²² ...mas Abraão ficou ainda em pé diante da face do Senhor." },
+            { q: "Qual foi a pergunta de Abraão ao chegar-se ao Senhor (v. 23)?", a: ["Salvarás a todos?", "Destruirás também o justo com o ímpio?", "Quando será a chuva?", "Por que descerás?"], c: 1, r: "²³ E chegou-se Abraão, dizendo: Destruirás também o justo com o ímpio?" },
+            { q: "Qual foi o primeiro número de justos que Abraão propôs para poupar o lugar?", a: ["Dez", "Vinte", "Cinquenta", "Cem"], c: 2, r: "²⁴ Se porventura houver cinquenta justos na cidade..." },
+            { q: "Como Abraão chamou o Senhor no versículo 25?", a: ["Criador do Universo", "Juiz de toda a terra", "Rei dos Reis", "Deus de Abraão"], c: 1, r: "²⁵ ...Não faria justiça o Juiz de toda a terra?" },
+            { q: "Qual foi a resposta do Senhor sobre encontrar cinquenta justos?", a: ["Destruiria mesmo assim", "Pouparia a todo o lugar por amor deles", "Levaria os justos embora", "Não respondeu"], c: 1, r: "²⁶ Então disse o Senhor: Se eu em Sodoma achar cinquenta justos... pouparei a todo o lugar..." },
+            { q: "Como Abraão se descreveu ao continuar falando com o Senhor (v. 27)?", a: ["Um servo fiel", "Pó e cinza", "Um pecador", "Um profeta"], c: 1, r: "²⁷ ...E respondeu Abraão dizendo: ...ainda que sou pó e cinza." },
+            { q: "Se faltassem cinco para cinquenta (45), o Senhor destruiria a cidade?", a: ["Sim", "Não a destruiria", "Destruiria metade", "Destruiria só os cinco"], c: 1, r: "²⁸ ...E disse: Não a destruirei, se eu achar ali quarenta e cinco." },
+            { q: "E se porventura se achassem ali quarenta justos?", a: ["Destruiria", "Não o faria por amor dos quarenta", "Abaixaria para trinta", "Pediria um sinal"], c: 1, r: "²⁹ ...E disse: Não o farei por amor dos quarenta." },
+            { q: "Qual o número de justos citado no versículo 30?", a: ["Vinte", "Trinta", "Quinze", "Dez"], c: 1, r: "³⁰ ...Se porventura se acharem ali trinta? E disse: Não o farei se achar ali trinta." },
+            { q: "E se se achassem ali vinte justos (v. 31)?", a: ["Poria fogo", "Não a destruiria por amor dos vinte", "Salvaria só a família de Ló", "Nada aconteceria"], c: 1, r: "³¹ ...E disse: Não a destruirei por amor dos vinte." },
+            { q: "Qual foi o último número de justos na petição de Abraão?", a: ["Um", "Cinco", "Dez", "Sete"], c: 2, r: "³² ...Se porventura se acharem ali dez? E disse: Não a destruirei por amor dos dez." },
+            { q: "O que aconteceu quando o Senhor acabou de falar com Abraão?", a: ["Abraão caiu no sono", "O Senhor retirou-se e Abraão tornou ao seu lugar", "Começou um terremoto", "Os anjos voltaram"], c: 1, r: "³³ E retirou-se o Senhor... e Abraão tornou-se ao seu lugar." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Você completou o estudo do Capítulo 18 e acertou ${score} de ${quizData.length} versículos!`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

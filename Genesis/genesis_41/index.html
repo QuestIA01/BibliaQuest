@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 41</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 41</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 41 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 41</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Quanto tempo se passou desde os eventos com o copeiro até o sonho de Faraó?", a: ["Um ano", "Dois anos inteiros", "Sete anos", "Três meses"], c: 1, r: "¹ E aconteceu que, ao fim de dois anos inteiros, Faraó sonhou..." },
+            { q: "No primeiro sonho de Faraó, o que as sete vacas magras fizeram?", a: ["Dormiram no prado", "Subiram o rio", "Comeram as sete vacas gordas", "Fugiram para o deserto"], c: 2, r: "⁴ E as vacas feias à vista e magras de carne, comiam as sete vacas formosas..." },
+            { q: "O que caracterizava as sete espigas que brotaram no segundo sonho?", a: ["Eram grandes e cheias", "Eram miúdas e queimadas do vento oriental", "Eram brancas como linho", "Eram de ouro"], c: 1, r: "⁶ E eis que sete espigas miúdas, e queimadas do vento oriental, brotavam após elas." },
+            { q: "Quem Faraó chamou primeiro para interpretar seus sonhos?", a: ["José", "O copeiro-mor", "Todos os adivinhadores e sábios do Egito", "O capitão da guarda"], c: 2, r: "⁸ ...enviou e chamou todos os adivinhadores do Egito, e todos os seus sábios..." },
+            { q: "O que motivou o copeiro-mor a falar de José para Faraó?", a: ["Ele queria ajudar José", "Ele se lembrou de suas próprias ofensas e do jovem hebreu", "Ele queria ganhar uma recompensa", "Ele era amigo de José"], c: 1, r: "⁹ Então falou o copeiro-mor a Faraó, dizendo: Das minhas ofensas me lembro hoje..." },
+            { q: "Como o copeiro descreveu José para Faraó?", a: ["Um príncipe de Canaã", "Um jovem hebreu, servo do capitão da guarda", "Um mago poderoso", "Um prisioneiro egípcio"], c: 1, r: "¹² E estava ali conosco um jovem hebreu, servo do capitão da guarda..." },
+            { q: "O que José fez antes de se apresentar a Faraó?", a: ["Orou por três dias", "Comeu um banquete", "Barbeou-se e mudou suas roupas", "Pediu permissão a Potifar"], c: 2, r: "¹⁴ ...e barbeou-se e mudou as suas roupas e apresentou-se a Faraó." },
+            { q: "Qual foi a primeira resposta de José quando Faraó disse que ele interpretava sonhos?", a: ["Eu sou o melhor intérprete", "Isso não está em mim; Deus dará resposta de paz", "Aprendi com meu pai", "Os magos são incompetentes"], c: 1, r: "¹⁶ E respondeu José a Faraó... Isso não está em mim; Deus dará resposta de paz a Faraó." },
+            { q: "O que acontecia com as vacas magras após comerem as gordas no sonho?", a: ["Ficavam gordas", "Morriam imediatamente", "Continuavam feias como no princípio", "Tornavam-se brancas"], c: 2, r: "²¹ ...mas não se conhecia que houvessem entrado; porque o seu parecer era feio como no princípio." },
+            { q: "Qual o significado das sete vacas e sete espigas formosas?", a: ["Sete reinos", "Sete anos de fartura", "Sete filhos de Faraó", "Sete meses de chuva"], c: 1, r: "²⁶ As sete vacas formosas são sete anos, as sete espigas formosas também são sete anos..." },
+            { q: "Por que o sonho foi repetido duas vezes a Faraó?", a: ["Porque Faraó esqueceu o primeiro", "Porque a coisa é determinada por Deus e Ele se apressa em fazê-la", "Porque eram avisos diferentes", "Para confirmar a morte de José"], c: 1, r: "³² E que o sonho foi repetido duas vezes a Faraó, é porque esta coisa é determinada por Deus..." },
+            { q: "Qual conselho José deu a Faraó para enfrentar a fome?", a: ["Construir um novo palácio", "Procurar um homem entendido e sábio para governar", "Vender as vacas", "Fugir do Egito"], c: 1, r: "³³ Portanto, Faraó previna-se agora de um homem entendido e sábio, e o ponha sobre a terra do Egito." },
+            { q: "Qual porcentagem da colheita José sugeriu que fosse tomada nos anos de fartura?", a: ["Metade", "Um terço", "A quinta parte (20%)", "Toda a colheita"], c: 2, r: "³⁴ ...e tome a quinta parte da terra do Egito nos sete anos de fartura." },
+            { q: "O que Faraó deu a José como símbolo de autoridade?", a: ["Uma espada de prata", "O seu próprio anel, roupas de linho e colar de ouro", "Um palácio em Om", "A coroa do Egito"], c: 1, r: "⁴² E tirou Faraó o anel da sua mão, e o pôs na mão de José, e o fez vestir de roupas de linho fino..." },
+            { q: "Qual foi o novo nome que Faraó deu a José?", a: ["Zafenate-Paneia", "Potífera", "Azenate", "Manassés"], c: 0, r: "⁴⁵ E Faraó chamou o nome de José de Zafenate-Paneia..." },
+            { q: "Com que idade José começou a governar no Egito?", a: ["17 anos", "30 anos", "40 anos", "50 anos"], c: 1, r: "⁴⁶ E José era da idade de trinta anos quando se apresentou a Faraó..." },
+            { q: "Qual o significado do nome do primeiro filho de José, Manassés?", a: ["Deus me fez crescer", "Deus me fez esquecer do meu trabalho e da casa de meu pai", "Fruto da aflição", "Pão do Egito"], c: 1, r: "⁵¹ ...Manassés, porque disse: Deus me fez esquecer de todo o meu trabalho, e de toda a casa de meu pai." },
+            { q: "Qual o significado do nome do segundo filho de José, Efraim?", a: ["Esquecimento", "Deus me fez crescer na terra da minha aflição", "Fome futura", "Paz de Deus"], c: 1, r: "⁵² ...Efraim; porque disse: Deus me fez crescer na terra da minha aflição." },
+            { q: "O que aconteceu quando a fome chegou a toda a terra?", a: ["Faraó mandou o povo para casa", "Faraó disse: Ide a José; o que ele vos disser, fazei", "O Egito ficou sem pão", "José fugiu para Canaã"], c: 1, r: "⁵⁵ ...e Faraó disse a todos os egípcios: Ide a José; o que ele vos disser, fazei." },
+            { q: "De onde vinham as pessoas para comprar trigo de José?", a: ["Apenas das cidades vizinhas", "De todas as terras", "Apenas da casa de Jacó", "Somente do deserto"], c: 1, r: "⁵⁷ E de todas as terras vinham ao Egito, para comprar de José..." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 41.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

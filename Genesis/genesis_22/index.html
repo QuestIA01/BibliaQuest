@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 22</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 22</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 22 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 22</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "O que Deus fez a Abraão no início do capítulo 22?", a: ["Deu-lhe riquezas", "Provou a Abraão", "Chamou-o para o Egito", "Fez uma aliança com Ismael"], c: 1, r: "¹ E aconteceu depois destas coisas, que provou Deus a Abraão..." },
+            { q: "Para qual terra Deus enviou Abraão para oferecer Isaque?", a: ["Terra de Canaã", "Terra de Berseba", "Terra de Moriá", "Terra de Gerar"], c: 2, r: "² E disse: ...vai-te à terra de Moriá, e oferece-o ali em holocausto..." },
+            { q: "Quem Abraão levou consigo para a jornada?", a: ["Apenas Isaque", "Sara e Isaque", "Dois de seus moços e Isaque", "Todo o seu rebanho"], c: 2, r: "³ ...e tomou consigo dois de seus moços e Isaque seu filho..." },
+            { q: "Em qual dia de viagem Abraão viu o lugar de longe?", a: ["No primeiro dia", "Ao terceiro dia", "No sétimo dia", "Logo que saiu"], c: 1, r: "⁴ Ao terceiro dia levantou Abraão os seus olhos, e viu o lugar de longe." },
+            { q: "O que Abraão disse aos moços que ele e o menino fariam?", a: ["Iriam caçar", "Iriam buscar água", "Iriam adorar e tornariam a eles", "Iriam construir uma tenda"], c: 2, r: "⁵ ...e eu e o moço iremos até ali; e havendo adorado, tornaremos a vós." },
+            { q: "O que Isaque perguntou a Abraão no caminho?", a: ["Quanto tempo falta?", "Onde está Sara?", "Onde está o cordeiro para o holocausto?", "Por que trouxemos fogo?"], c: 2, r: "⁷ ...E ele disse: Eis aqui o fogo e a lenha, mas onde está o cordeiro para o holocausto?" },
+            { q: "Qual foi a resposta de Abraão à pergunta de Isaque?", a: ["Nós vamos comprar um", "O Senhor o esqueceu", "Deus proverá para si o cordeiro", "Tu saberás em breve"], c: 2, r: "⁸ E disse Abraão: Deus proverá para si o cordeiro para o holocausto, meu filho." },
+            { q: "O que Abraão fez com Isaque após edificar o altar?", a: ["Pediu que orasse", "Amarrou-o e deitou-o sobre o altar", "Deu-lhe o cutelo", "Mandou-o voltar"], c: 1, r: "⁹ ...e amarrou a Isaque seu filho, e deitou-o sobre o altar em cima da lenha." },
+            { q: "Quem impediu Abraão de imolar seu filho?", a: ["Isaque", "Um dos moços", "O anjo do Senhor", "Um carneiro"], c: 2, r: "¹¹ Mas o anjo do Senhor lhe bradou desde os céus, e disse: Abraão, Abraão!" },
+            { q: "O que o anjo disse que agora sabia sobre Abraão?", a: ["Que ele era muito rico", "Que agora sei que temes a Deus", "Que ele era um bom pai", "Que ele amava Ismael"], c: 1, r: "¹² ...porquanto agora sei que temes a Deus, e não me negaste o teu filho..." },
+            { q: "O que Abraão encontrou para oferecer em lugar de seu filho?", a: ["Um cordeiro", "Um bezerro", "Um carneiro travado pelos chifres", "Uma pomba"], c: 2, r: "¹³ ...e eis um carneiro detrás dele, travado pelos seus chifres, num mato..." },
+            { q: "Qual foi o nome que Abraão deu àquele lugar?", a: ["Betel", "Berseba", "O Senhor proverá", "Moriá"], c: 2, r: "¹⁴ E chamou Abraão o nome daquele lugar: o Senhor proverá..." },
+            { q: "Como Deus prometeu multiplicar a descendência de Abraão?", a: ["Como as flores do campo", "Como as estrelas do céu e a areia da praia", "Como as águas do mar", "Como as árvores do bosque"], c: 1, r: "¹⁷ ...grandissimamente multiplicarei a tua descendência como as estrelas dos céus, e como a areia que está na praia do mar..." },
+            { q: "Por que todas as nações seriam benditas na descendência de Abraão?", a: ["Porque ele era rico", "Porquanto obedeceste à minha voz", "Porque ele viajou muito", "Porque ele era velho"], c: 1, r: "¹⁸ E em tua descendência serão benditas todas as nações da terra; porquanto obedeceste à minha voz." },
+            { q: "Para onde Abraão e seus moços foram após o evento?", a: ["Para o Egito", "Para Berseba", "Para Sodoma", "Para o Líbano"], c: 1, r: "¹⁹ ...e levantaram-se, e foram juntos para Berseba; e Abraão habitou em Berseba." },
+            { q: "Quem deu filhos a Naor, irmão de Abraão?", a: ["Sara", "Agar", "Milca", "Reumá"], c: 2, r: "²⁰ ...anunciaram a Abraão, dizendo: Eis que também Milca deu filhos a Naor teu irmão." },
+            { q: "Quem foi o filho de Betuel mencionado na genealogia?", a: ["Isaque", "Rebeca", "Maaca", "Arã"], c: 1, r: "²³ E Betuel gerou Rebeca." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 22.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

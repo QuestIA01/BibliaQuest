@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 31</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 31</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Estudo do Capítulo 31 Concluído</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Recomeçar Capítulo 31</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "O que diziam os filhos de Labão que Jacó percebeu?", a: ["Que Jacó era um bom pastor", "Que Jacó tinha tomado tudo o que era do pai deles", "Que Jacó deveria ser o novo chefe", "Que Jacó era um profeta"], c: 1, r: "¹ ...Jacó tem tomado tudo o que era de nosso pai, e do que era de nosso pai fez ele toda esta glória." },
+            { q: "O que o Senhor ordenou a Jacó diante da mudança de atitude de Labão?", a: ["Fique e lute por seus direitos", "Trabalhe mais sete anos", "Torna-te à terra dos teus pais e à tua parentela", "Dê metade do gado a Labão"], c: 2, r: "³ E disse o Senhor a Jacó: Torna-te à terra dos teus pais, e à tua parentela, e eu serei contigo." },
+            { q: "Quantas vezes Jacó afirmou que Labão mudou o seu salário?", a: ["Duas vezes", "Sete vezes", "Cinco vezes", "Dez vezes"], c: 3, r: "⁷ Mas vosso pai me enganou e mudou o salário dez vezes..." },
+            { q: "Como Deus se identificou a Jacó no sonho sobre a partida?", a: ["O Deus de Abraão", "O Deus de Betel", "O Deus de Labão", "O Deus Altíssimo"], c: 1, r: "¹³ Eu sou o Deus de Betel, onde tens ungido uma coluna, onde me fizeste um voto..." },
+            { q: "O que Raquel furtou de seu pai Labão antes da fuga?", a: ["Ouro e prata", "As ovelhas mais fortes", "Os ídolos (deuses domésticos)", "As vestes de Labão"], c: 2, r: "¹⁹ ...furtou Raquel os ídolos que seu pai tinha." },
+            { q: "Para onde Jacó se dirigiu ao fugir com sua família e bens?", a: ["Para o Egito", "Para a montanha de Gileade", "Para Berseba", "Para Sodoma"], c: 1, r: "²¹ ...e se dirigiu para a montanha de Gileade." },
+            { q: "O que Deus disse a Labão em sonho quando ele perseguia Jacó?", a: ["Mate Jacó e recupere suas filhas", "Traga Jacó de volta à força", "Guarda-te, que não fales com Jacó nem bem nem mal", "Peça os ídolos de volta"], c: 2, r: "²⁴ Veio, porém, Deus a Labão... e disse-lhe: Guarda-te, que não fales com Jacó nem bem nem mal." },
+            { q: "Qual foi a condição de Jacó para quem estivesse com os deuses de Labão?", a: ["Deveria pagar uma multa", "Deveria ser expulso", "Esse não viva", "Deveria pedir perdão"], c: 2, r: "³² Com quem achares os teus deuses, esse não viva..." },
+            { q: "Como Raquel conseguiu esconder os ídolos de Labão?", a: ["Enterrou-os no chão da tenda", "Colocou-os na albarda de um camelo e sentou-se sobre eles", "Deu-os para as servas esconderem", "Escondeu-os no meio do trigo"], c: 1, r: "³⁴ Mas tinha tomado Raquel os ídolos e os tinha posto na albarda de um camelo, e assentara-se sobre eles..." },
+            { q: "Há quantos anos Jacó estava na casa de Labão quando partiu?", a: ["14 anos", "7 anos", "20 anos", "40 anos"], c: 2, r: "³⁸ Estes vinte anos eu estive contigo..." },
+            { q: "Como Jacó descreveu sua rotina de trabalho para Labão?", a: ["Trabalhava pouco e descansava muito", "De dia me consumia o calor, e de noite a geada; o sono fugiu dos meus olhos", "Era um trabalho fácil e leve", "Labão sempre o ajudava"], c: 1, r: "⁴⁰ Estava eu assim: De dia me consumia o calor, e de noite a geada; e o meu sono fugiu dos meus olhos." },
+            { q: "Qual o nome que Jacó deu ao montão de pedras da aliança (em hebreu)?", a: ["Jegar-Saaduta", "Betel", "Galeede", "Mispá"], c: 2, r: "⁴⁷ ...porém Jacó chamou-o Galeede." },
+            { q: "O que significava o nome 'Mispá' dado ao lugar?", a: ["Lugar de sacrifício", "Deus é meu pastor", "Atente o Senhor entre mim e ti, quando estivermos apartados", "Montanha de paz"], c: 2, r: "⁴⁹ E Mispá, porquanto disse: Atente o Senhor entre mim e ti, quando nós estivermos apartados um do outro." },
+            { q: "Qual era o compromisso principal da aliança entre Jacó e Labão?", a: ["Dividirem os lucros no futuro", "Não passarem daquele montão um contra o outro para mal", "Casarem seus netos entre si", "Jacó voltar em sete anos"], c: 1, r: "⁵² ...que eu não passarei este montão a ti, e que tu não passarás este montão e esta coluna a mim, para mal." },
+            { q: "O que Labão fez na manhã seguinte antes de partir?", a: ["Levou o gado de volta", "Beijou seus filhos e filhas, abençoou-os e voltou ao seu lugar", "Ficou morando com Jacó", "Amaldiçoou a terra de Canaã"], c: 1, r: "⁵⁵ E levantou-se Labão pela manhã de madrugada, e beijou seus filhos e suas filhas e abençoou-os e partiu..." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 31.`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

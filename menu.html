@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Viewport essencial para PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Identidade -->
+    <title>Bíblia Quest</title>
+    <meta name="theme-color" content="#3e2723">
+
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy"
+    content="
+        default-src 'self';
+        script-src 'self';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self';
+        frame-ancestors 'none';
+        base-uri 'self';
+    ">
+
+    <!-- Suporte iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Bíblia Quest">
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Ícones -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png">
+
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            box-shadow:
+                10px 10px 20px rgba(0,0,0,0.5),
+                inset 0 0 50px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            text-align: center;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            font-variant: small-caps;
+            border-bottom: 2px solid #8d6e63;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .book-section {
+            margin-bottom: 40px;
+        }
+
+        .book-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .chapter-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            background-color: transparent;
+            border: 1px solid #8d6e63;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .chapter-btn:hover {
+            background-color: #8d6e63;
+            color: white;
+        }
+
+        .donation-section {
+            margin-top: 30px;
+        }
+
+        .donation-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: 2px solid #8d6e63;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .donation-btn:hover {
+            background-color: #8d6e63;
+            color: #ffffff;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background-image: linear-gradient(
+                to right,
+                transparent,
+                #8d6e63,
+                transparent
+            );
+            margin: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Bíblia Quest</h1>
+
+        <div class="book-section">
+            <span class="book-title">Gênesis</span>
+            <div class="chapters-grid" id="genesis-chapters"></div>
+        </div>
+
+        <hr>
+
+        <div class="book-section">
+            <span class="book-title" style="opacity: 0.5;">
+                Êxodo (Em Breve)
+            </span>
+        </div>
+
+        <div class="donation-section">
+            <a
+                href="https://link.mercadopago.com.br/questia"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="donation-btn"
+            >
+                Doação
+            </a>
+        </div>
+    </div>
+
+    <!-- Script externo (compatível com CSP) -->
+    <script src="menu.js" defer></script>
+
+</body>
+</html>

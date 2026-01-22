@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 46</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 650px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            text-align: center;
+            font-variant: small-caps;
+            border-bottom: 2px solid #8d6e63;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 20px;
+            color: #5d4037;
+        }
+
+        .question {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            background-color: rgba(141, 110, 99, 0.3);
+        }
+
+        .correct {
+            background-color: #a5d6a7 !important;
+            border-color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .wrong {
+            background-color: #ef9a9a !important;
+            border-color: #c62828;
+        }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+        }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz">
+    <h1>Gênesis 46</h1>
+    <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+
+    <div id="question-box">
+        <div class="question" id="question-text"></div>
+        <div class="options" id="options-container"></div>
+
+        <div id="reference-box">
+            <strong>Referência:</strong><br>
+            <span id="reference-text"></span>
+        </div>
+
+        <div class="next-container">
+            <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+        </div>
+    </div>
+
+    <div id="result-screen">
+        <h2>Estudo do Capítulo 46 Concluído</h2>
+        <p id="score-text"></p>
+        <button onclick="location.reload()" class="option-btn" style="width:100%; text-align:center;">
+            Recomeçar Capítulo 46
+        </button>
+    </div>
+
+    <div class="footer-nav">
+        <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    { q: "Para onde Israel foi antes de descer ao Egito?", a: ["Hebrom", "Betel", "Berseba", "Gósen"], c: 2, r: "¹ ...veio a Berseba, e ofereceu sacrifícios..." },
+
+    { q: "A quem Israel ofereceu sacrifícios?", a: ["Ao Deus de Abraão", "Ao Deus de Isaque", "Ao Deus de José", "Ao Deus do Egito"], c: 1, r: "¹ ...ao Deus de seu pai Isaque." },
+
+    { q: "Como Deus falou com Israel?", a: ["Em sonho comum", "Por anjo visível", "Em visões de noite", "Por profeta"], c: 2, r: "² E falou Deus a Israel em visões de noite..." },
+
+    { q: "Qual foi a primeira palavra de Deus a Jacó?", a: ["Não temas", "Desce ao Egito", "Jacó, Jacó", "Eu sou contigo"], c: 2, r: "² ...e disse: Jacó, Jacó!" },
+
+    { q: "Por que Jacó não deveria temer descer ao Egito?", a: ["Por causa de José", "Porque o Egito era forte", "Porque Deus faria dele uma grande nação", "Porque seria temporário"], c: 2, r: "³ ...porque eu te farei ali uma grande nação." },
+
+    { q: "O que Deus promete fazer pessoalmente?", a: ["Enviar anjos", "Proteger Canaã", "Descer com Jacó ao Egito", "Trazer riquezas"], c: 2, r: "⁴ E descerei contigo ao Egito..." },
+
+    { q: "Quem colocaria a mão sobre os olhos de Jacó?", a: ["Judá", "Faraó", "José", "Benjamim"], c: 2, r: "⁴ ...e José porá a sua mão sobre os teus olhos." },
+
+    { q: "Quem providenciou os carros para a viagem?", a: ["José", "Jacó", "Faraó", "Os irmãos"], c: 2, r: "⁵ ...nos carros que Faraó enviara..." },
+
+    { q: "De onde vieram os bens levados para o Egito?", a: ["Egito", "Síria", "Canaã", "Padã-Arã"], c: 2, r: "⁶ ...bens que tinham adquirido na terra de Canaã..." },
+
+    { q: "Quem é citado como primogênito de Jacó?", a: ["Simeão", "Judá", "Rúben", "Levi"], c: 2, r: "⁸ Rúben, o primogênito de Jacó." },
+
+    { q: "Quantas almas foram dos filhos de Lia?", a: ["Trinta", "Trinta e duas", "Trinta e três", "Trinta e cinco"], c: 2, r: "¹⁵ ...todas as almas... foram trinta e três." },
+
+    { q: "Qual esposa gerou José e Benjamim?", a: ["Lia", "Zilpa", "Bila", "Raquel"], c: 3, r: "¹⁹ Os filhos de Raquel..." },
+
+    { q: "Quem eram os filhos de José nascidos no Egito?", a: ["Hezrom e Hamul", "Manassés e Efraim", "Belá e Bequer", "Gérson e Coate"], c: 1, r: "²⁰ Manassés e Efraim..." },
+
+    { q: "Quantas almas vieram dos filhos de Raquel?", a: ["Doze", "Treze", "Catorze", "Quinze"], c: 2, r: "²² ...ao todo catorze almas." },
+
+    { q: "Quem foi enviado adiante para encontrar José?", a: ["Rúben", "Levi", "Judá", "Benjamim"], c: 2, r: "²⁸ Jacó enviou Judá adiante..." },
+
+    { q: "Onde ocorreu o reencontro entre José e Israel?", a: ["Canaã", "Heliópolis", "Gósen", "Berseba"], c: 2, r: "²⁹ ...ao encontro de Israel... a Gósen." },
+
+    { q: "Como José reagiu ao ver seu pai?", a: ["Em silêncio", "Com reverência", "Chorou longo tempo", "Caiu prostrado"], c: 2, r: "²⁹ ...chorou sobre o seu pescoço longo tempo." },
+
+    { q: "O que Israel disse após rever José?", a: ["Basta-me", "Deus é fiel", "Morra eu agora", "Estou em paz"], c: 2, r: "³⁰ Morra eu agora..." },
+
+    { q: "Qual profissão José orientou os irmãos a declararem?", a: ["Lavradores", "Mercadores", "Homens de gado", "Servos"], c: 2, r: "³⁴ Teus servos foram homens de gado..." },
+
+    { q: "Por que isso os ajudaria a viver em Gósen?", a: ["Por favor de Faraó", "Por estratégia militar", "Porque pastores eram abominação aos egípcios", "Por causa de José"], c: 2, r: "³⁴ ...porque todo o pastor de ovelhas é abominação aos egípcios." }
+];
+
+let currentQ = 0;
+let score = 0;
+let answered = false;
+
+function loadQuestion() {
+    answered = false;
+    const q = quizData[currentQ];
+    document.getElementById('current-idx').innerText = currentQ + 1;
+    document.getElementById('total-questions').innerText = quizData.length;
+    document.getElementById('question-text').innerText = q.q;
+
+    document.getElementById('reference-box').style.display = 'none';
+    document.getElementById('next-btn').style.display = 'none';
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+
+    q.a.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(i);
+        container.appendChild(btn);
+    });
+}
+
+function checkAnswer(idx) {
+    if (answered) return;
+    answered = true;
+
+    const buttons = document.querySelectorAll('.option-btn');
+    const correct = quizData[currentQ].c;
+
+    buttons.forEach(btn => btn.disabled = true);
+
+    if (idx === correct) {
+        buttons[idx].classList.add('correct');
+        score++;
+    } else {
+        buttons[idx].classList.add('wrong');
+        buttons[correct].classList.add('correct');
+    }
+
+    document.getElementById('reference-text').innerText = quizData[currentQ].r;
+    document.getElementById('reference-box').style.display = 'block';
+    document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+    currentQ++;
+    if (currentQ < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+    document.getElementById('question-box').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+    document.getElementById('score-text').innerText =
+        `Estudo Finalizado! Você acertou ${score} de ${quizData.length} questões sobre o Capítulo 46.`;
+}
+
+loadQuestion();
+</script>
+
+</body>
+</html>

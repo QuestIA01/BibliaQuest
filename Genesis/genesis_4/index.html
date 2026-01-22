@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bíblia Quest - Gênesis 4</title>
+    <style>
+        body {
+            background-color: #3e2723;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .quiz-container {
+            background-color: #f4e4bc;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            border-radius: 5px;
+            border-left: 15px solid #2d1d1a;
+            color: #1a1a1a;
+        }
+
+        h1 { text-align: center; font-variant: small-caps; border-bottom: 2px solid #8d6e63; margin-bottom: 10px; }
+        .stats { text-align: center; font-style: italic; margin-bottom: 20px; color: #5d4037; }
+        
+        .question { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-btn {
+            background-color: rgba(141, 110, 99, 0.1);
+            border: 1px solid #8d6e63;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .option-btn:hover:not([disabled]) { background-color: rgba(141, 110, 99, 0.3); }
+        
+        .correct { background-color: #a5d6a7 !important; border-color: #2e7d32; font-weight: bold; }
+        .wrong { background-color: #ef9a9a !important; border-color: #c62828; }
+
+        #reference-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(141, 110, 99, 0.15);
+            border-radius: 5px;
+            border-left: 5px solid #8d6e63;
+            display: none;
+            font-style: italic;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .next-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            background-color: #3e2723;
+            color: #f4e4bc;
+            padding: 10px 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer-nav {
+            margin-top: 30px;
+            border-top: 1px solid #8d6e63;
+            padding-top: 15px;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: #3e2723;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        #result-screen { text-align: center; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz">
+        <h1>Gênesis 4</h1>
+        <div class="stats">Pergunta <span id="current-idx">1</span> de <span id="total-questions"></span></div>
+        
+        <div id="question-box">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+            
+            <div id="reference-box">
+                <strong>Referência:</strong><br>
+                <span id="reference-text"></span>
+            </div>
+
+            <div class="next-container">
+                <button id="next-btn" class="next-btn" onclick="nextQuestion()">Avançar →</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2>Fim do Capítulo 4</h2>
+            <p id="score-text"></p>
+            <button onclick="location.reload()" class="option-btn" style="width: 100%; text-align: center;">Tentar Novamente</button>
+        </div>
+
+        <div class="footer-nav">
+            <a href="../../menu.html" class="nav-btn">← Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "Quem foi o primeiro filho de Adão e Eva?", a: ["Abel", "Sete", "Caim", "Enoque"], c: 2, r: "¹ E conheceu Adão a Eva, sua mulher, e ela concebeu e deu à luz a Caim..." },
+            { q: "Qual era a profissão de Abel?", a: ["Lavrador da terra", "Pastor de ovelhas", "Mestre de música", "Ferreiro"], c: 1, r: "² ...e Abel foi pastor de ovelhas, e Caim foi lavrador da terra." },
+            { q: "Qual era a profissão de Caim?", a: ["Pastor de ovelhas", "Carpinteiro", "Lavrador da terra", "Caçador"], c: 2, r: "² ...e Abel foi pastor de ovelhas, e Caim foi lavrador da terra." },
+            { q: "O que Caim trouxe como oferta ao Senhor?", a: ["Um cordeiro", "Frutos da terra", "Ouro", "Pães asmos"], c: 1, r: "³ ...Caim trouxe do fruto da terra uma oferta ao Senhor." },
+            { q: "O que Abel trouxe como oferta ao Senhor?", a: ["Primogênitos das ovelhas e sua gordura", "As melhores espigas", "Incenso", "Um bezerro"], c: 0, r: "⁴ E Abel também trouxe dos primogênitos das suas ovelhas, e da sua gordura..." },
+            { q: "Como Caim reagiu quando o Senhor não atentou para sua oferta?", a: ["Ficou triste e chorou", "Irou-se fortemente e descaiu-lhe o semblante", "Pediu perdão", "Ignorou a situação"], c: 1, r: "⁵ Mas para Caim e para a sua oferta não atentou. E irou-se Caim fortemente, e descaiu-lhe o semblante." },
+            { q: "O que Deus disse que 'jazia à porta' de Caim?", a: ["A bênção", "O perdão", "O pecado", "A morte"], c: 2, r: "⁷ ...E se não fizeres bem, o pecado jaz à porta, e sobre ti será o seu desejo..." },
+            { q: "Onde Caim e Abel estavam quando Caim o matou?", a: ["No jardim", "Em casa", "No campo", "Perto do altar"], c: 2, r: "⁸ ...e sucedeu que, estando eles no campo, se levantou Caim contra o seu irmão Abel, e o matou." },
+            { q: "Qual foi a resposta de Caim quando Deus perguntou por Abel?", a: ["Ele foi viajar", "Não sei; sou eu guardador do meu irmão?", "Ele está dormindo", "Eu o matei"], c: 1, r: "⁹ ...E ele disse: Não sei; sou eu guardador do meu irmão?" },
+            { q: "O que Deus disse que clamava desde a terra?", a: ["A voz da justiça", "O sangue de Abel", "O choro de Eva", "A terra seca"], c: 1, r: "¹⁰ ...A voz do sangue do teu irmão clama a mim desde a terra." },
+            { q: "Qual foi a punição de Caim em relação à terra?", a: ["Ela seria inundada", "Ela não daria mais sua força ao ser lavrada", "Ela produziria apenas espinhos", "Caim nunca mais poderia tocá-la"], c: 1, r: "¹² Quando lavrares a terra, não te dará mais a sua força..." },
+            { q: "Caim passaria a viver como na terra?", a: ["Rei e governante", "Escravo", "Fugitivo e vagabundo", "Eremita"], c: 2, r: "¹² ...fugitivo e vagabundo serás na terra." },
+            { q: "O que o Senhor pôs em Caim para que ninguém o matasse?", a: ["Uma armadura", "Um sinal", "Um anjo da guarda", "Uma maldição visível"], c: 1, r: "¹⁵ ...E pôs o Senhor um sinal em Caim, para que o não ferisse qualquer que o achasse." },
+            { q: "Onde Caim habitou após sair da presença do Senhor?", a: ["Terra de Node", "Egito", "Assíria", "Babilônia"], c: 0, r: "¹¹⁶ E saiu Caim de diante da face do Senhor, e habitou na terra de Node..." },
+            { q: "Qual o nome do filho de Caim e da cidade que ele edificou?", a: ["Irade", "Enoque", "Lameque", "Metusael"], c: 1, r: "¹⁷ ...e deu à luz a Enoque; e ele edificou uma cidade, e chamou o nome da cidade... Enoque." },
+            { q: "Quem foi o descendente de Caim que teve duas mulheres (Ada e Zilá)?", a: ["Metusael", "Irade", "Lameque", "Meujael"], c: 2, r: "¹⁹ E tomou Lameque para si duas mulheres; o nome de uma era Ada, e o nome da outra, Zilá." },
+            { q: "Quem foi o pai dos que tocam harpa e órgão?", a: ["Jabal", "Jubal", "Tubalcaim", "Enoque"], c: 1, r: "²¹ E o nome do seu irmão era Jubal; este foi o pai de todos os que tocam harpa e órgão." },
+            { q: "Qual era a especialidade de Tubalcaim?", a: ["Mestre de música", "Habitar em tendas", "Mestre de obra de cobre e ferro", "Pastor de gado"], c: 2, r: "²² E Zilá também deu à luz a Tubalcaim, mestre de toda a obra de cobre e ferro..." },
+            { q: "Qual o nome do filho que nasceu para substituir Abel?", a: ["Enos", "Sete", "Noé", "Sem"], c: 1, r: "²⁵ ...e chamou o seu nome Sete; porque, disse ela, Deus me deu outro filho em lugar de Abel..." },
+            { q: "O que começou a acontecer na época de Enos, filho de Sete?", a: ["A construção da torre", "As guerras", "Começou-se a invocar o nome do Senhor", "O dilúvio começou"], c: 2, r: "²⁶ ...e chamou o seu nome Enos; então se começou a invocar o nome do Senhor." }
+        ];
+
+        let currentQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizData[currentQ];
+            document.getElementById('current-idx').innerText = currentQ + 1;
+            document.getElementById('total-questions').innerText = quizData.length;
+            document.getElementById('question-text').innerText = q.q;
+            
+            document.getElementById('reference-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.a.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(i);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+
+            const buttons = document.querySelectorAll('.option-btn');
+            const correct = quizData[currentQ].c;
+            
+            buttons.forEach(btn => btn.disabled = true);
+
+            if(idx === correct) {
+                buttons[idx].classList.add('correct');
+                score++;
+            } else {
+                buttons[idx].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            document.getElementById('reference-text').innerText = quizData[currentQ].r;
+            document.getElementById('reference-box').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('question-box').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('score-text').innerText = `Você acertou ${score} de ${quizData.length} perguntas!`;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
