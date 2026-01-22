@@ -3,36 +3,12 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- Viewport essencial para PWA -->
+    <!-- Viewport essencial -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Identidade -->
     <title>Bíblia Quest</title>
-    <meta name="theme-color" content="#3e2723">
-
-    <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy"
-    content="
-        default-src 'self';
-        script-src 'self';
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' data:;
-        connect-src 'self';
-        frame-ancestors 'none';
-        base-uri 'self';
-    ">
-
-    <!-- Suporte iOS -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Bíblia Quest">
-
-    <!-- Manifest PWA -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Ícones -->
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192.png">
 
     <style>
         body {
@@ -50,9 +26,7 @@
             width: 90%;
             max-width: 600px;
             padding: 40px;
-            box-shadow:
-                10px 10px 20px rgba(0,0,0,0.5),
-                inset 0 0 50px rgba(0,0,0,0.1);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5), inset 0 0 50px rgba(0,0,0,0.1);
             border-radius: 5px;
             border-left: 15px solid #2d1d1a;
             text-align: center;
@@ -125,12 +99,7 @@
         hr {
             border: 0;
             height: 1px;
-            background-image: linear-gradient(
-                to right,
-                transparent,
-                #8d6e63,
-                transparent
-            );
+            background-image: linear-gradient(to right, transparent, #8d6e63, transparent);
             margin: 30px 0;
         }
     </style>
@@ -148,24 +117,15 @@
         <hr>
 
         <div class="book-section">
-            <span class="book-title" style="opacity: 0.5;">
-                Êxodo (Em Breve)
-            </span>
+            <span class="book-title" style="opacity: 0.5;">Êxodo (Em Breve)</span>
         </div>
 
         <div class="donation-section">
-            <a
-                href="https://link.mercadopago.com.br/questia"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="donation-btn"
-            >
-                Doação
-            </a>
+            <a href="https://link.mercadopago.com.br/questia" target="_blank" rel="noopener noreferrer" class="donation-btn">Doação</a>
         </div>
     </div>
 
-    <!-- Script externo (compatível com CSP) -->
+    <!-- Script externo -->
     <script src="menu.js" defer></script>
 
 </body>
